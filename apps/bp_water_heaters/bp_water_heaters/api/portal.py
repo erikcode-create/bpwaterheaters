@@ -5,7 +5,13 @@ from frappe import _
 from frappe.utils import get_datetime, now_datetime
 
 from bp_water_heaters.portal_view import _annotate_invoice, build_portal_view
-from bp_water_heaters.portal_security import hash_return_token, hash_token, issue_checkout_return_token, issue_token
+from bp_water_heaters.portal_security import (
+	checkout_return_is_reusable,
+	hash_return_token,
+	hash_token,
+	issue_checkout_return_token,
+	issue_token,
+)
 from bp_water_heaters.security_limits import clamp_limit, client_ip, require_frappe_rate_limit
 from bp_water_heaters.urls import portal_url
 
@@ -88,9 +94,18 @@ def create_invoice_checkout(token: str, sales_invoice: str):
 		return {"configured": False, "message": "Stripe Python package is not installed yet."}
 
 	invoice = frappe.get_doc("Sales Invoice", sales_invoice)
-	amount = float(invoice.outstanding_amount or invoice.grand_total)
+	amount = float(invoice.outstanding_amount or 0)
 	if amount <= 0:
 		frappe.throw(_("That invoice does not have an outstanding balance."))
+
+	active_checkout = _active_checkout_return(token_doc.email, invoice.name)
+	if active_checkout:
+		return {
+			"configured": True,
+			"url": active_checkout.checkout_url,
+			"session_id": active_checkout.stripe_checkout_session_id,
+			"reused": True,
+		}
 
 	metadata = {
 		"brand": "bp_water_heaters",
@@ -101,29 +116,43 @@ def create_invoice_checkout(token: str, sales_invoice: str):
 	return_token, return_token_name = _create_checkout_return_token(token_doc, invoice.name)
 	stripe.api_key = stripe_key
 	stripe.api_version = "2026-04-22.dahlia"
-	session = stripe.checkout.Session.create(
-		mode="payment",
-		customer_email=token_doc.email,
-		customer_creation="always",
-		client_reference_id=invoice.name,
-		payment_method_types=["card", "us_bank_account"],
-		success_url=portal_url("/bpwaterheaters-portal", {"checkout_return": return_token, "payment": "success"}),
-		cancel_url=portal_url("/bpwaterheaters-portal", {"checkout_return": return_token, "payment": "cancelled"}),
-		line_items=[
-			{
-				"price_data": {
-					"currency": "usd",
-					"product_data": {"name": f"BP Water Heaters invoice {invoice.name}"},
-					"unit_amount": int(amount * 100),
-				},
-				"quantity": 1,
-			}
-		],
-		metadata=metadata,
-		payment_intent_data={"metadata": metadata},
-		idempotency_key=f"bpwh-invoice-{invoice.name}-{return_token_name}",
+	try:
+		session = stripe.checkout.Session.create(
+			mode="payment",
+			customer_email=token_doc.email,
+			customer_creation="always",
+			client_reference_id=invoice.name,
+			payment_method_types=["card", "us_bank_account"],
+			success_url=portal_url("/bpwaterheaters-portal", {"checkout_return": return_token, "payment": "success"}),
+			cancel_url=portal_url("/bpwaterheaters-portal", {"checkout_return": return_token, "payment": "cancelled"}),
+			line_items=[
+				{
+					"price_data": {
+						"currency": "usd",
+						"product_data": {"name": f"BP Water Heaters invoice {invoice.name}"},
+						"unit_amount": int(amount * 100),
+					},
+					"quantity": 1,
+				}
+			],
+			metadata=metadata,
+			payment_intent_data={"metadata": metadata},
+			idempotency_key=f"bpwh-invoice-{invoice.name}-{return_token_name}",
+		)
+	except Exception:
+		frappe.db.set_value("BPWH Portal Return Token", return_token_name, "status", "Expired", update_modified=True)
+		raise
+
+	frappe.db.set_value(
+		"BPWH Portal Return Token",
+		return_token_name,
+		{
+			"stripe_checkout_session_id": session.id,
+			"checkout_url": session.url,
+		},
+		update_modified=True,
 	)
-	return {"configured": True, "url": session.url, "session_id": session.id}
+	return {"configured": True, "url": session.url, "session_id": session.id, "reused": False}
 
 
 @frappe.whitelist(allow_guest=True)
@@ -207,6 +236,26 @@ def _create_checkout_return_token(token_doc, sales_invoice: str):
 	)
 	doc.insert(ignore_permissions=True)
 	return issued.token, doc.name
+
+
+def _active_checkout_return(email: str, sales_invoice: str):
+	now = now_datetime()
+	rows = frappe.get_all(
+		"BPWH Portal Return Token",
+		filters={
+			"email": email,
+			"sales_invoice": sales_invoice,
+			"status": "Active",
+			"expires_at": [">", now],
+		},
+		fields=["name", "status", "expires_at", "stripe_checkout_session_id", "checkout_url"],
+		order_by="creation desc",
+		limit_page_length=5,
+	)
+	for row in rows:
+		if checkout_return_is_reusable(row, now=now):
+			return row
+	return None
 
 
 def _portal_rows(email: str, customer: str | None, limit: int):

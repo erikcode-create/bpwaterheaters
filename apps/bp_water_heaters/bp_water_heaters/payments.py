@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable, Mapping, Sequence
 
 SAFE_STRIPE_METADATA_KEYS = {"brand", "erp_site", "booking_id", "sales_invoice", "service_type"}
 
@@ -85,3 +86,70 @@ def sanitize_stripe_event_for_audit(event: dict[str, Any]) -> dict[str, Any]:
 			"metadata": {key: metadata.get(key) for key in SAFE_STRIPE_METADATA_KEYS if metadata.get(key)},
 		},
 	}
+
+
+def stripe_payload_needs_redaction(payload: Any) -> bool:
+	return isinstance(payload, dict) and isinstance(payload.get("data"), dict) and isinstance(
+		payload.get("data", {}).get("object"),
+		dict,
+	)
+
+
+def redact_stripe_payload_rows(
+	fetch_rows: Callable[[str | None, int], Sequence[Mapping[str, Any]]],
+	store_payload: Callable[[str, dict[str, Any]], None],
+	batch_size: int = 500,
+) -> dict[str, int]:
+	batch_size = max(1, int(batch_size or 500))
+	last_name: str | None = None
+	stats = {"scanned": 0, "redacted": 0, "skipped": 0}
+
+	while True:
+		rows = list(fetch_rows(last_name, batch_size) or [])
+		if not rows:
+			break
+
+		advanced = False
+		for row in rows:
+			row_name = _row_value(row, "name")
+			if not row_name:
+				stats["skipped"] += 1
+				continue
+
+			row_name = str(row_name)
+			if last_name is not None and row_name <= last_name:
+				stats["skipped"] += 1
+				continue
+
+			last_name = row_name
+			advanced = True
+			stats["scanned"] += 1
+
+			raw_payload = _row_value(row, "payload")
+			if not raw_payload:
+				stats["skipped"] += 1
+				continue
+
+			try:
+				payload = json.loads(raw_payload) if isinstance(raw_payload, (str, bytes, bytearray)) else raw_payload
+			except (TypeError, ValueError):
+				stats["skipped"] += 1
+				continue
+
+			if not stripe_payload_needs_redaction(payload):
+				stats["skipped"] += 1
+				continue
+
+			store_payload(row_name, sanitize_stripe_event_for_audit(payload))
+			stats["redacted"] += 1
+
+		if not advanced or len(rows) < batch_size:
+			break
+
+	return stats
+
+
+def _row_value(row: Mapping[str, Any], key: str):
+	if isinstance(row, dict):
+		return row.get(key)
+	return getattr(row, key, None)

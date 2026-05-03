@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import time as time_module
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
@@ -10,7 +9,7 @@ from frappe import _
 from frappe.utils import add_to_date, get_datetime, getdate, now_datetime
 
 from bp_water_heaters.erp import prepare_booking_erp_records, record_payment_for_booking, record_payment_for_invoice
-from bp_water_heaters.payments import classify_stripe_event, sanitize_stripe_event_for_audit
+from bp_water_heaters.payments import classify_stripe_event, redact_stripe_payload_rows, sanitize_stripe_event_for_audit
 from bp_water_heaters.security_limits import client_ip, require_frappe_rate_limit
 from bp_water_heaters.taxes import select_tax_rule
 from bp_water_heaters.urls import public_url
@@ -339,24 +338,27 @@ def _record_stripe_event(event_id, event_type, booking_id, event, status, error=
 	).insert(ignore_permissions=True)
 
 
-def redact_stored_stripe_payloads(limit: int = 500):
-	for row in frappe.get_all("BPWH Stripe Event", fields=["name", "payload"], limit_page_length=limit):
-		if not row.get("payload"):
-			continue
-		try:
-			payload = json.loads(row.payload)
-		except (TypeError, ValueError):
-			continue
-		if "data" not in payload:
-			continue
-		sanitized = sanitize_stripe_event_for_audit(payload)
+def redact_stored_stripe_payloads(batch_size: int = 500):
+	def fetch_rows(after_name: str | None, limit: int):
+		filters = {"name": [">", after_name]} if after_name else {}
+		return frappe.get_all(
+			"BPWH Stripe Event",
+			filters=filters,
+			fields=["name", "payload"],
+			order_by="name asc",
+			limit_page_length=limit,
+		)
+
+	def store_payload(row_name: str, sanitized: dict):
 		frappe.db.set_value(
 			"BPWH Stripe Event",
-			row.name,
+			row_name,
 			"payload",
 			frappe.as_json(sanitized),
 			update_modified=False,
 		)
+
+	return redact_stripe_payload_rows(fetch_rows, store_payload, batch_size=batch_size)
 
 
 def _apply_tax_rule_to_booking(booking):
