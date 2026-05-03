@@ -9,7 +9,7 @@ from bp_water_heaters.access import is_allowed_admin
 
 
 def require_bpwh_admin():
-	mobile_user = _mobile_user_from_request()
+	mobile_user = getattr(frappe.flags, "bpwh_mobile_admin_user", None)
 	if mobile_user:
 		return mobile_user
 	user = frappe.session.user
@@ -20,7 +20,12 @@ def require_bpwh_admin():
 	return user
 
 
-@frappe.whitelist(allow_guest=True)
+def require_post():
+	if getattr(frappe, "request", None) and frappe.request.method != "POST":
+		frappe.throw(_("Use POST for this admin action."), frappe.PermissionError)
+
+
+@frappe.whitelist()
 def dashboard():
 	require_bpwh_admin()
 	return {
@@ -31,7 +36,7 @@ def dashboard():
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def list_bookings(limit: int = 50):
 	require_bpwh_admin()
 	return frappe.get_all(
@@ -53,7 +58,7 @@ def list_bookings(limit: int = 50):
 	)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def list_chats(limit: int = 50):
 	require_bpwh_admin()
 	return frappe.get_all(
@@ -64,9 +69,10 @@ def list_chats(limit: int = 50):
 	)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def get_chat_messages(conversation: str):
 	require_bpwh_admin()
+	require_post()
 	if not frappe.db.exists("BPWH Chat Conversation", conversation):
 		frappe.throw(_("Chat conversation not found."))
 
@@ -95,9 +101,10 @@ def get_chat_messages(conversation: str):
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def update_chat_status(conversation: str, status: str):
 	require_bpwh_admin()
+	require_post()
 	allowed = {"Open", "Waiting on Customer", "Closed"}
 	if status not in allowed:
 		frappe.throw(_("Unsupported chat status."))
@@ -105,7 +112,7 @@ def update_chat_status(conversation: str, status: str):
 	return {"conversation": conversation, "status": status}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def list_projects(limit: int = 50):
 	require_bpwh_admin()
 	return frappe.get_all(
@@ -117,9 +124,10 @@ def list_projects(limit: int = 50):
 	)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def update_project(project: str, status: str | None = None, percent_complete: float | None = None):
 	require_bpwh_admin()
+	require_post()
 	if not frappe.db.exists("Project", project):
 		frappe.throw(_("Project not found."))
 
@@ -140,7 +148,7 @@ def update_project(project: str, status: str | None = None, percent_complete: fl
 	return {"project": project, **updates}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def list_invoices(limit: int = 50):
 	require_bpwh_admin()
 	return frappe.get_all(
@@ -152,7 +160,7 @@ def list_invoices(limit: int = 50):
 	)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def list_contact_requests(limit: int = 50):
 	require_bpwh_admin()
 	return frappe.get_all(
@@ -163,7 +171,7 @@ def list_contact_requests(limit: int = 50):
 	)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def customer_history(email: str):
 	require_bpwh_admin()
 	normalized_email = (email or "").strip().lower()
@@ -194,15 +202,17 @@ def customer_history(email: str):
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def reply_chat(conversation: str, message: str):
 	user = require_bpwh_admin()
+	require_post()
 	return admin_reply(conversation, message, user)
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def ensure_job_for_booking(booking: str):
 	require_bpwh_admin()
+	require_post()
 	if not frappe.db.exists("BPWH Booking", booking):
 		frappe.throw(_("Booking not found."))
 	from bp_water_heaters.erp import prepare_booking_erp_records
@@ -212,9 +222,10 @@ def ensure_job_for_booking(booking: str):
 	return {"booking": booking, **records}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def update_booking_status(booking: str, status: str):
 	require_bpwh_admin()
+	require_post()
 	allowed = {"Pending Payment", "Payment Pending Settlement", "Confirmed", "Payment Failed", "Cancelled", "Completed", "Expired", "Refunded", "Disputed"}
 	if status not in allowed:
 		frappe.throw(_("Unsupported booking status."))
@@ -222,9 +233,10 @@ def update_booking_status(booking: str, status: str):
 	return {"booking": booking, "status": status}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def register_device_token(device_token: str, platform: str = "iOS"):
 	user = require_bpwh_admin()
+	require_post()
 	existing = frappe.db.exists("BPWH Device Token", {"user": user, "device_token": device_token})
 	if existing:
 		frappe.db.set_value("BPWH Device Token", existing, {"enabled": 1, "last_seen_at": now_datetime()}, update_modified=True)
@@ -241,12 +253,3 @@ def register_device_token(device_token: str, platform: str = "iOS"):
 	)
 	doc.insert(ignore_permissions=True)
 	return {"name": doc.name}
-
-
-def _mobile_user_from_request():
-	try:
-		from bp_water_heaters.mobile_auth import user_from_bearer_token
-
-		return user_from_bearer_token()
-	except Exception:
-		return None

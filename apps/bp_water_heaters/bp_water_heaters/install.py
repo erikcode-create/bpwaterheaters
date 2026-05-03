@@ -43,6 +43,15 @@ def ensure_setup():
 	ensure_admin_users()
 	ensure_microsoft_login_if_configured()
 	ensure_signup_policy()
+	redact_stripe_event_payloads()
+
+
+def redact_stripe_event_payloads():
+	if not frappe.db.exists("DocType", "BPWH Stripe Event"):
+		return
+	from bp_water_heaters.api.booking import redact_stored_stripe_payloads
+
+	redact_stored_stripe_payloads()
 
 
 def ensure_branding():

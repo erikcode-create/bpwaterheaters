@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import time
 from typing import Any
 
 import frappe
@@ -8,8 +10,10 @@ import requests
 from frappe import _
 from frappe.utils import now_datetime
 
-from bp_water_heaters.api.admin import require_bpwh_admin
+from bp_water_heaters.api.admin import require_bpwh_admin, require_post
+from bp_water_heaters.plaid_webhook_security import decide_transactions_webhook, validate_plaid_webhook_claims
 from bp_water_heaters.plaid_sync import plaid_removed_transaction_id, plaid_transaction_to_bank_transaction
+from bp_water_heaters.security_limits import client_ip, require_frappe_rate_limit
 from bp_water_heaters.urls import webhook_url
 
 COMPANY = "BP Water Heaters"
@@ -21,7 +25,7 @@ PLAID_ENVIRONMENTS = {
 TRANSACTIONS_WEBHOOK_METHOD = "bp_water_heaters.api.plaid.transactions_webhook"
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def status():
 	require_bpwh_admin()
 	return {
@@ -32,7 +36,7 @@ def status():
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def create_link_token():
 	require_bpwh_admin()
 	payload = {
@@ -52,9 +56,10 @@ def create_link_token():
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def exchange_public_token(public_token: str, institution_name: str | None = None):
 	require_bpwh_admin()
+	require_post()
 	if not public_token:
 		frappe.throw(_("Plaid public token is required."))
 
@@ -73,7 +78,7 @@ def exchange_public_token(public_token: str, institution_name: str | None = None
 	return {"item": doc.name, "item_id": item_id, "status": doc.status}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def list_plaid_accounts(item: str):
 	require_bpwh_admin()
 	doc = frappe.get_doc("BPWH Plaid Item", item)
@@ -85,9 +90,10 @@ def list_plaid_accounts(item: str):
 	}
 
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist()
 def map_plaid_account(item: str, plaid_account_id: str, bank_account: str):
 	require_bpwh_admin()
+	require_post()
 	doc = frappe.get_doc("BPWH Plaid Item", item)
 	accounts = list_plaid_accounts(doc.name)["accounts"]
 	selected = next((account for account in accounts if account["account_id"] == plaid_account_id), None)
@@ -134,15 +140,28 @@ def sync_bank_transactions(item: str | None = None):
 
 @frappe.whitelist(allow_guest=True)
 def transactions_webhook():
-	payload = frappe.request.get_json(silent=True) or {}
-	item_id = payload.get("item_id")
-	if item_id and frappe.db.exists("BPWH Plaid Item", item_id):
+	require_frappe_rate_limit(frappe, "plaid-webhook-ip", client_ip(frappe), limit=120, window_seconds=60)
+	raw_body = frappe.request.get_data() or b""
+	_verify_plaid_webhook(raw_body)
+	try:
+		payload = json.loads(raw_body.decode("utf-8"))
+	except (UnicodeDecodeError, ValueError):
+		frappe.throw(_("Plaid webhook body is invalid."), frappe.PermissionError)
+	decision = decide_transactions_webhook(payload, _known_plaid_item_ids(), _configured_plaid_environment())
+	if decision.should_sync:
+		require_frappe_rate_limit(
+			frappe,
+			"plaid-webhook-item",
+			decision.item_id,
+			limit=12,
+			window_seconds=300,
+		)
 		frappe.enqueue(
 			"bp_water_heaters.api.plaid.sync_bank_transactions",
 			queue="short",
-			item=item_id,
+			item=decision.item_id,
 		)
-	return {"ok": True}
+	return {"ok": True, "action": decision.reason}
 
 
 def _sync_item_transactions(doc):
@@ -380,8 +399,12 @@ def _bank_gl_account_name(item_doc, selected):
 
 
 def _plaid_base_url():
-	environment = (frappe.conf.get("bpwh_plaid_environment") or "production").strip().lower()
+	environment = _configured_plaid_environment()
 	return PLAID_ENVIRONMENTS.get(environment, PLAID_ENVIRONMENTS["production"])
+
+
+def _configured_plaid_environment():
+	return (frappe.conf.get("bpwh_plaid_environment") or "production").strip().lower()
 
 
 def _access_token(doc):
@@ -409,6 +432,71 @@ def _public_account(account):
 def _maybe_require_admin():
 	if getattr(frappe, "session", None) and getattr(frappe.session, "user", "Guest") != "Guest":
 		require_bpwh_admin()
+
+
+def _verify_plaid_webhook(raw_body: bytes):
+	signed_jwt = frappe.get_request_header("Plaid-Verification")
+	if not signed_jwt:
+		frappe.throw(_("Plaid webhook signature is missing."), frappe.PermissionError)
+	try:
+		import jwt
+		from jwt import algorithms
+	except ImportError:
+		frappe.throw(_("PyJWT with crypto support is not installed."), frappe.PermissionError)
+	try:
+		header = jwt.get_unverified_header(signed_jwt)
+	except Exception:
+		frappe.throw(_("Plaid webhook signature is invalid."), frappe.PermissionError)
+	if header.get("alg") != "ES256" or not header.get("kid"):
+		frappe.throw(_("Plaid webhook signature algorithm is unsupported."), frappe.PermissionError)
+	key = _plaid_webhook_key(header["kid"])
+	try:
+		public_key = algorithms.ECAlgorithm.from_jwk(json.dumps(key))
+		claims = jwt.decode(
+			signed_jwt,
+			key=public_key,
+			algorithms=["ES256"],
+			options={"verify_aud": False, "verify_iat": False},
+		)
+	except Exception:
+		frappe.throw(_("Plaid webhook signature is invalid."), frappe.PermissionError)
+	if not validate_plaid_webhook_claims(claims, raw_body):
+		frappe.throw(_("Plaid webhook signature body check failed."), frappe.PermissionError)
+	return claims
+
+
+def _plaid_webhook_key(key_id: str):
+	cache_key = f"bpwh:plaid-webhook-key:{key_id}"
+	cached = frappe.cache().get_value(cache_key)
+	if cached:
+		if isinstance(cached, bytes):
+			cached = cached.decode("utf-8")
+		try:
+			key = json.loads(cached) if isinstance(cached, str) else cached
+		except ValueError:
+			key = None
+		if key and _plaid_webhook_key_is_current(key):
+			return key
+
+	response = _plaid_request("/webhook_verification_key/get", {"key_id": key_id})
+	key = response.get("key")
+	if not key:
+		frappe.throw(_("Plaid webhook verification key was not returned."), frappe.PermissionError)
+	expired_at = key.get("expired_at")
+	ttl = 3600
+	if expired_at:
+		ttl = max(60, int(int(expired_at) - time.time()))
+	frappe.cache().set_value(cache_key, json.dumps(key), expires_in_sec=ttl)
+	return key
+
+
+def _plaid_webhook_key_is_current(key: dict[str, Any]):
+	expired_at = key.get("expired_at")
+	return not expired_at or int(expired_at) > int(time.time())
+
+
+def _known_plaid_item_ids():
+	return frappe.get_all("BPWH Plaid Item", pluck="name", limit_page_length=500)
 
 
 def _log_sync(status, error=None, item=None):

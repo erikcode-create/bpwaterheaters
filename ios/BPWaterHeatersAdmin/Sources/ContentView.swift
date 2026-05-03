@@ -92,7 +92,7 @@ struct DashboardView: View {
             .navigationTitle("Dashboard")
             .task {
                 do {
-                    summary = try await session.get("bp_water_heaters.api.admin.dashboard")
+                    summary = try await session.get("bp_water_heaters.api.mobile.admin_dashboard")
                 } catch {
                     self.error = error.localizedDescription
                 }
@@ -145,7 +145,7 @@ struct BookingsView: View {
 
     private func load() async {
         do {
-            bookings = try await session.get("bp_water_heaters.api.admin.list_bookings")
+            bookings = try await session.get("bp_water_heaters.api.mobile.admin_list_bookings")
             error = nil
         } catch {
             self.error = error.localizedDescription
@@ -234,7 +234,7 @@ struct JobsView: View {
 
     private func load() async {
         do {
-            projects = try await session.get("bp_water_heaters.api.admin.list_projects")
+            projects = try await session.get("bp_water_heaters.api.mobile.admin_list_projects")
             error = nil
         } catch {
             self.error = error.localizedDescription
@@ -315,7 +315,7 @@ struct InvoicesView: View {
             }
             .navigationTitle("Invoices")
             .task {
-                invoices = (try? await session.get("bp_water_heaters.api.admin.list_invoices")) ?? []
+                invoices = (try? await session.get("bp_water_heaters.api.mobile.admin_list_invoices")) ?? []
             }
         }
     }
@@ -345,7 +345,7 @@ struct ContactsView: View {
             }
             .navigationTitle("Contacts")
             .task {
-                contacts = (try? await session.get("bp_water_heaters.api.admin.list_contact_requests")) ?? []
+                contacts = (try? await session.get("bp_water_heaters.api.mobile.admin_list_contact_requests")) ?? []
             }
         }
     }
@@ -388,7 +388,7 @@ struct ChatsView: View {
 
     private func load() async {
         do {
-            chats = try await session.get("bp_water_heaters.api.admin.list_chats")
+            chats = try await session.get("bp_water_heaters.api.mobile.admin_list_chats")
             error = nil
         } catch {
             self.error = error.localizedDescription

@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+SAFE_STRIPE_METADATA_KEYS = {"brand", "erp_site", "booking_id", "sales_invoice", "service_type"}
+
 
 @dataclass(frozen=True)
 class StripeEventState:
@@ -64,3 +66,22 @@ def _payment_method_type(event_type: str, session: dict[str, Any]) -> str | None
 		return payment_method_details["type"]
 
 	return None
+
+
+def sanitize_stripe_event_for_audit(event: dict[str, Any]) -> dict[str, Any]:
+	obj = (event.get("data") or {}).get("object") or {}
+	metadata = obj.get("metadata") or {}
+	return {
+		"event_id": event.get("id"),
+		"event_type": event.get("type"),
+		"object": {
+			"id": obj.get("id"),
+			"object": obj.get("object"),
+			"client_reference_id": obj.get("client_reference_id"),
+			"payment_status": obj.get("payment_status"),
+			"status": obj.get("status"),
+			"payment_intent": obj.get("payment_intent"),
+			"payment_method_types": obj.get("payment_method_types"),
+			"metadata": {key: metadata.get(key) for key in SAFE_STRIPE_METADATA_KEYS if metadata.get(key)},
+		},
+	}

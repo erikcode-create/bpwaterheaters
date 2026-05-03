@@ -5,6 +5,7 @@ from frappe import _
 from frappe.utils import now_datetime
 
 from bp_water_heaters.access import is_allowed_admin, normalize_email
+from bp_water_heaters.api import admin as admin_api
 from bp_water_heaters.mobile_auth import (
 	email_from_microsoft_claims,
 	issue_mobile_token,
@@ -80,6 +81,71 @@ def logout():
 	return {"ok": True}
 
 
+@frappe.whitelist(allow_guest=True)
+def admin_dashboard():
+	return _mobile_admin_call(admin_api.dashboard)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_list_bookings(limit: int = 50):
+	return _mobile_admin_call(admin_api.list_bookings, limit)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_list_projects(limit: int = 50):
+	return _mobile_admin_call(admin_api.list_projects, limit)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_list_invoices(limit: int = 50):
+	return _mobile_admin_call(admin_api.list_invoices, limit)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_list_contact_requests(limit: int = 50):
+	return _mobile_admin_call(admin_api.list_contact_requests, limit)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_list_chats(limit: int = 50):
+	return _mobile_admin_call(admin_api.list_chats, limit)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_get_chat_messages(conversation: str):
+	return _mobile_admin_call(admin_api.get_chat_messages, conversation)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_update_chat_status(conversation: str, status: str):
+	return _mobile_admin_call(admin_api.update_chat_status, conversation, status)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_reply_chat(conversation: str, message: str):
+	return _mobile_admin_call(admin_api.reply_chat, conversation, message)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_update_project(project: str, status: str | None = None, percent_complete: float | None = None):
+	return _mobile_admin_call(admin_api.update_project, project, status, percent_complete)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_ensure_job_for_booking(booking: str):
+	return _mobile_admin_call(admin_api.ensure_job_for_booking, booking)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_update_booking_status(booking: str, status: str):
+	return _mobile_admin_call(admin_api.update_booking_status, booking, status)
+
+
+@frappe.whitelist(allow_guest=True)
+def admin_register_device_token(device_token: str, platform: str = "iOS"):
+	return _mobile_admin_call(admin_api.register_device_token, device_token, platform)
+
+
 def _mobile_microsoft_config():
 	tenant_id = frappe.conf.get("bpwh_mobile_microsoft_tenant_id") or frappe.conf.get("bpwh_microsoft_tenant_id")
 	client_id = frappe.conf.get("bpwh_mobile_microsoft_client_id") or frappe.conf.get("bpwh_microsoft_client_id")
@@ -108,3 +174,15 @@ def _ensure_admin_user(email: str):
 	)
 	user.insert(ignore_permissions=True)
 	return normalized
+
+
+def _mobile_admin_call(callback, *args, **kwargs):
+	user = user_from_bearer_token()
+	if not user:
+		frappe.throw(_("Mobile session is invalid or expired."), frappe.PermissionError)
+	previous = getattr(frappe.flags, "bpwh_mobile_admin_user", None)
+	frappe.flags.bpwh_mobile_admin_user = user
+	try:
+		return callback(*args, **kwargs)
+	finally:
+		frappe.flags.bpwh_mobile_admin_user = previous

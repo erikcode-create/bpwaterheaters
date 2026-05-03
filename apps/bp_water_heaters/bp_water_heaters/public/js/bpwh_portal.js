@@ -3,11 +3,13 @@
 	const intro = document.getElementById("bpwh-portal-intro");
 	const status = document.getElementById("bpwh-portal-status");
 	const params = new URLSearchParams(window.location.search);
-	const token = params.get("token");
-	const paymentReturn = params.get("payment");
+	let portalToken = params.get("token");
+	const checkoutReturn = params.get("checkout_return");
+	let paymentReturn = params.get("payment");
 	let portalData = null;
 	let activeConversation = null;
 	let activeMessages = [];
+	let activeMessagePagination = null;
 
 	const moneyFormatter = new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" });
 	const percentFormatter = new Intl.NumberFormat(undefined, { style: "percent", maximumFractionDigits: 0 });
@@ -225,20 +227,34 @@
 			<section class="bpwh-portal-panel" aria-labelledby="booking-history-title">
 				<h2 id="booking-history-title">Bookings</h2>
 				${renderRows(data.bookings, renderBookingRow, "No scheduled bookings yet.")}
+				${renderLoadMore("bookings", "Load More Bookings")}
+			</section>
+			<section class="bpwh-portal-panel" aria-labelledby="project-history-title">
+				<h2 id="project-history-title">Jobs</h2>
+				${renderRows(data.projects, renderProjectRow, "No jobs yet.")}
+				${renderLoadMore("projects", "Load More Jobs")}
 			</section>
 			<section class="bpwh-portal-panel" aria-labelledby="invoice-history-title">
 				<h2 id="invoice-history-title">Invoices</h2>
 				${renderRows(data.invoices, renderInvoiceRow, "No invoices yet.")}
+				${renderLoadMore("invoices", "Load More Invoices")}
 			</section>
 			<section class="bpwh-portal-panel bpwh-portal-panel--wide" aria-labelledby="message-history-title">
 				<h2 id="message-history-title">Messages</h2>
 				${renderRows(data.conversations, renderConversationRow, "No messages yet.")}
+				${renderLoadMore("conversations", "Load More Messages")}
 				${renderNewMessageForm()}
 			</section>`;
 	}
 
 	function renderRows(rows, formatter, emptyText) {
 		return rows && rows.length ? rows.map(formatter).join("") : `<p class="bpwh-empty">${escapeHtml(emptyText)}</p>`;
+	}
+
+	function renderLoadMore(section, label) {
+		const nextCursor = portalData?.pagination?.[section]?.next_cursor;
+		if (!nextCursor) return "";
+		return `<button class="bpwh-inline-pay bpwh-inline-pay--secondary" type="button" data-load-section="${section}" data-cursor="${escapeHtml(nextCursor)}">${escapeHtml(label)}</button>`;
 	}
 
 	function renderBookingRow(booking) {
@@ -261,6 +277,17 @@
 					${invoice.posting_date ? `<p>Posted ${renderTime(invoice.posting_date, "date")}</p>` : ""}
 				</div>
 				${invoice.is_payable ? renderPayButton(invoice) : ""}
+			</article>`;
+	}
+
+	function renderProjectRow(project) {
+		return `
+			<article class="bpwh-history-row">
+				<div>
+					<strong>${escapeHtml(project.project_name || project.name)}</strong>
+					<span>${renderChip(project.status)} ${project.percent_complete != null ? formatPercent(project.percent_complete) : ""}</span>
+					${project.expected_start_date ? `<p>Starts ${renderTime(project.expected_start_date, "date")}</p>` : ""}
+				</div>
 			</article>`;
 	}
 
@@ -298,7 +325,10 @@
 					</div>
 					<button class="bpwh-inline-pay bpwh-inline-pay--secondary" type="button" id="bpwh-chat-close">Close</button>
 				</div>
-				<div class="bpwh-chat-thread">${messages}</div>
+				<div class="bpwh-chat-thread">
+					${activeMessagePagination?.next_before ? `<button class="bpwh-inline-pay bpwh-inline-pay--secondary" type="button" id="bpwh-chat-load-older">Load Older Messages</button>` : ""}
+					${messages}
+				</div>
 				<form class="bpwh-portal-chat-form bpwh-portal-chat-form--sticky" id="bpwh-chat-reply-form" data-conversation="${escapeHtml(activeConversation)}">
 					<label for="bpwh-chat-reply">Reply to BP Water Heaters</label>
 					<textarea id="bpwh-chat-reply" name="message" rows="4" placeholder="Reply to BP Water Heaters&hellip;" required></textarea>
@@ -345,6 +375,9 @@
 		for (const button of app.querySelectorAll("[data-conversation]")) {
 			button.addEventListener("click", () => openConversation(button.dataset.conversation));
 		}
+		for (const button of app.querySelectorAll("[data-load-section]")) {
+			button.addEventListener("click", () => loadMoreHistory(button.dataset.loadSection, button.dataset.cursor, button));
+		}
 		app.querySelector("[data-new-message]")?.addEventListener("click", () => {
 			document.getElementById("bpwh-new-message")?.focus();
 		});
@@ -353,8 +386,54 @@
 		document.getElementById("bpwh-chat-close")?.addEventListener("click", () => {
 			activeConversation = null;
 			activeMessages = [];
+			activeMessagePagination = null;
 			render(portalData, true);
 		});
+		document.getElementById("bpwh-chat-load-older")?.addEventListener("click", loadOlderMessages);
+	}
+
+	async function loadMoreHistory(section, cursor, button) {
+		if (!portalToken || !section || !cursor) return;
+		const previousText = button.textContent;
+		button.disabled = true;
+		button.textContent = "Loading…";
+		try {
+			const result = await call("bp_water_heaters.api.portal.get_portal_history", {
+				token: portalToken,
+				section,
+				cursor,
+			});
+			portalData[section] = [...(portalData[section] || []), ...(result.rows || [])];
+			portalData.pagination = portalData.pagination || {};
+			portalData.pagination[section] = result.pagination || { has_more: false };
+			render(portalData, false);
+		} catch (error) {
+			setStatus("More history could not be loaded right now.", "error");
+			button.disabled = false;
+			button.textContent = previousText;
+		}
+	}
+
+	async function loadOlderMessages(event) {
+		const button = event.currentTarget;
+		if (!portalToken || !activeConversation || !activeMessagePagination?.next_before) return;
+		const previousText = button.textContent;
+		button.disabled = true;
+		button.textContent = "Loading…";
+		try {
+			const result = await call("bp_water_heaters.api.chat.get_portal_messages", {
+				token: portalToken,
+				conversation: activeConversation,
+				before: activeMessagePagination.next_before,
+			});
+			activeMessages = [...(result.messages || []), ...activeMessages];
+			activeMessagePagination = result.pagination || null;
+			render(portalData, false);
+		} catch (error) {
+			setStatus("Older messages could not be loaded right now.", "error");
+			button.disabled = false;
+			button.textContent = previousText;
+		}
 	}
 
 	async function payInvoice(invoice, button) {
@@ -364,7 +443,7 @@
 		setStatus(`Opening checkout for ${invoice}.`);
 		try {
 			const result = await call("bp_water_heaters.api.portal.create_invoice_checkout", {
-				token,
+				token: portalToken,
 				sales_invoice: invoice,
 			});
 			if (result.url) {
@@ -384,9 +463,10 @@
 		setBusy(true);
 		setStatus("Loading messages…");
 		try {
-			const result = await call("bp_water_heaters.api.chat.get_portal_messages", { token, conversation });
+			const result = await call("bp_water_heaters.api.chat.get_portal_messages", { token: portalToken, conversation });
 			activeConversation = result.conversation;
 			activeMessages = result.messages || [];
+			activeMessagePagination = result.pagination || null;
 			setStatus("");
 			render(portalData, true);
 		} catch (error) {
@@ -405,7 +485,7 @@
 		button.textContent = "Sending…";
 		setStatus("Sending message…");
 		try {
-			const result = await call("bp_water_heaters.api.chat.start_portal_chat", { token, message });
+			const result = await call("bp_water_heaters.api.chat.start_portal_chat", { token: portalToken, message });
 			form.reset();
 			await openConversation(result.conversation);
 			setStatus("Message sent.");
@@ -429,7 +509,7 @@
 		button.textContent = "Sending…";
 		setStatus("Sending reply…");
 		try {
-			await call("bp_water_heaters.api.chat.send_portal_message", { token, conversation, message });
+			await call("bp_water_heaters.api.chat.send_portal_message", { token: portalToken, conversation, message });
 			form.reset();
 			await openConversation(conversation);
 			setStatus("Reply sent.");
@@ -482,15 +562,34 @@
 		}
 	}
 
+	function clearCheckoutReturnUrl() {
+		const cleanUrl = `${window.location.origin}${window.location.pathname}`;
+		window.history.replaceState({}, document.title, cleanUrl);
+	}
+
+	async function consumeCheckoutReturn() {
+		if (!checkoutReturn) return;
+		setBusy(true);
+		setStatus("Refreshing your secure portal session…");
+		const result = await call("bp_water_heaters.api.portal.consume_checkout_return", {
+			checkout_return: checkoutReturn,
+			payment: paymentReturn,
+		});
+		portalToken = result.token;
+		paymentReturn = result.payment || paymentReturn;
+		clearCheckoutReturnUrl();
+	}
+
 	async function load() {
-		if (!token) {
-			renderRecovery("Open Your Service Portal", "This portal link is missing a secure token.");
-			return;
-		}
 		setBusy(true);
 		setStatus("Loading service details…");
 		try {
-			render(await call("bp_water_heaters.api.portal.get_portal_data", { token }), false);
+			await consumeCheckoutReturn();
+			if (!portalToken) {
+				renderRecovery("Open Your Service Portal", "This portal link is missing a secure token.");
+				return;
+			}
+			render(await call("bp_water_heaters.api.portal.get_portal_data", { token: portalToken }), false);
 			setStatus("");
 		} catch (error) {
 			renderRecovery("Portal Link Expired", "This secure link is invalid or expired. Request a fresh portal link to continue.");

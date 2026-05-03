@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import time as time_module
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
@@ -9,7 +10,8 @@ from frappe import _
 from frappe.utils import add_to_date, get_datetime, getdate, now_datetime
 
 from bp_water_heaters.erp import prepare_booking_erp_records, record_payment_for_booking, record_payment_for_invoice
-from bp_water_heaters.payments import classify_stripe_event
+from bp_water_heaters.payments import classify_stripe_event, sanitize_stripe_event_for_audit
+from bp_water_heaters.security_limits import client_ip, require_frappe_rate_limit
 from bp_water_heaters.taxes import select_tax_rule
 from bp_water_heaters.urls import public_url
 
@@ -66,6 +68,8 @@ def create_booking_hold(
 	county: str | None = None,
 	notes: str | None = None,
 ):
+	require_frappe_rate_limit(frappe, "booking-hold-ip", client_ip(frappe), limit=8, window_seconds=3600)
+	require_frappe_rate_limit(frappe, "booking-hold-email", email, limit=4, window_seconds=3600)
 	slot_start = get_datetime(preferred_start)
 	slot_end = slot_start + timedelta(minutes=SLOT_MINUTES)
 
@@ -112,6 +116,8 @@ def create_booking_hold(
 
 @frappe.whitelist(allow_guest=True)
 def submit_contact_request(full_name: str, email: str, phone: str, message: str, source: str = "Website"):
+	require_frappe_rate_limit(frappe, "contact-request-ip", client_ip(frappe), limit=8, window_seconds=3600)
+	require_frappe_rate_limit(frappe, "contact-request-email", email, limit=4, window_seconds=3600)
 	if not full_name or not email or not phone or not message:
 		frappe.throw(_("Please include your name, email, phone, and message."))
 
@@ -248,7 +254,6 @@ def _stripe_metadata(booking):
 		"brand": "bp_water_heaters",
 		"erp_site": frappe.local.site,
 		"booking_id": booking.name,
-		"customer_email": booking.email,
 		"service_type": "estimate_callout",
 	}
 
@@ -269,7 +274,7 @@ def _process_stripe_event(event):
 
 	if not state.booking_id or not frappe.db.exists("BPWH Booking", state.booking_id):
 		_record_stripe_event(event_id, event_type, state.booking_id, event, "Ignored")
-		frappe.log_error(title="BPWH Stripe webhook missing booking", message=frappe.as_json(event))
+		frappe.log_error(title="BPWH Stripe webhook missing booking", message=frappe.as_json(sanitize_stripe_event_for_audit(event)))
 		return
 
 	booking = frappe.get_doc("BPWH Booking", state.booking_id)
@@ -299,7 +304,7 @@ def _process_invoice_stripe_event(event, state, sales_invoice):
 
 	if not frappe.db.exists("Sales Invoice", sales_invoice):
 		_record_stripe_event(event_id, event_type, None, event, "Ignored", sales_invoice=sales_invoice)
-		frappe.log_error(title="BPWH Stripe webhook missing invoice", message=frappe.as_json(event))
+		frappe.log_error(title="BPWH Stripe webhook missing invoice", message=frappe.as_json(sanitize_stripe_event_for_audit(event)))
 		return
 
 	try:
@@ -329,9 +334,29 @@ def _record_stripe_event(event_id, event_type, booking_id, event, status, error=
 			"status": status,
 			"processed_at": now_datetime(),
 			"error": error,
-			"payload": frappe.as_json(event),
+			"payload": frappe.as_json(sanitize_stripe_event_for_audit(event)),
 		}
 	).insert(ignore_permissions=True)
+
+
+def redact_stored_stripe_payloads(limit: int = 500):
+	for row in frappe.get_all("BPWH Stripe Event", fields=["name", "payload"], limit_page_length=limit):
+		if not row.get("payload"):
+			continue
+		try:
+			payload = json.loads(row.payload)
+		except (TypeError, ValueError):
+			continue
+		if "data" not in payload:
+			continue
+		sanitized = sanitize_stripe_event_for_audit(payload)
+		frappe.db.set_value(
+			"BPWH Stripe Event",
+			row.name,
+			"payload",
+			frappe.as_json(sanitized),
+			update_modified=False,
+		)
 
 
 def _apply_tax_rule_to_booking(booking):

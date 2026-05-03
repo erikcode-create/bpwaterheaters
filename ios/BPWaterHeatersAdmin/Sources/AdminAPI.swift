@@ -41,14 +41,14 @@ final class AdminSession {
 
     func updateBookingStatus(_ booking: Booking, status: String) async throws {
         let _: GenericActionResponse = try await post(
-            "bp_water_heaters.api.admin.update_booking_status",
+            "bp_water_heaters.api.mobile.admin_update_booking_status",
             form: ["booking": booking.name, "status": status]
         )
     }
 
     func ensureJob(for booking: Booking) async throws {
         let _: GenericActionResponse = try await post(
-            "bp_water_heaters.api.admin.ensure_job_for_booking",
+            "bp_water_heaters.api.mobile.admin_ensure_job_for_booking",
             form: ["booking": booking.name]
         )
     }
@@ -61,23 +61,23 @@ final class AdminSession {
         if let percentComplete {
             form["percent_complete"] = String(percentComplete)
         }
-        let _: GenericActionResponse = try await post("bp_water_heaters.api.admin.update_project", form: form)
+        let _: GenericActionResponse = try await post("bp_water_heaters.api.mobile.admin_update_project", form: form)
     }
 
     func chatMessages(for conversation: ChatConversation) async throws -> ChatThread {
-        try await post("bp_water_heaters.api.admin.get_chat_messages", form: ["conversation": conversation.name])
+        try await post("bp_water_heaters.api.mobile.admin_get_chat_messages", form: ["conversation": conversation.name])
     }
 
     func reply(to conversation: ChatConversation, message: String) async throws {
         let _: GenericActionResponse = try await post(
-            "bp_water_heaters.api.admin.reply_chat",
+            "bp_water_heaters.api.mobile.admin_reply_chat",
             form: ["conversation": conversation.name, "message": message]
         )
     }
 
     func updateChatStatus(_ conversation: ChatConversation, status: String) async throws {
         let _: GenericActionResponse = try await post(
-            "bp_water_heaters.api.admin.update_chat_status",
+            "bp_water_heaters.api.mobile.admin_update_chat_status",
             form: ["conversation": conversation.name, "status": status]
         )
     }
