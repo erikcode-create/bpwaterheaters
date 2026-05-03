@@ -4,6 +4,7 @@ import frappe
 from frappe import _
 from frappe.utils import get_datetime, now_datetime
 
+from bp_water_heaters.portal_view import build_portal_view
 from bp_water_heaters.portal_security import hash_token, issue_token
 from bp_water_heaters.urls import portal_url
 
@@ -87,14 +88,14 @@ def get_portal_data(token: str):
 		order_by="last_message_at desc",
 	)
 	token_doc.db_set("last_accessed_at", now_datetime(), update_modified=False)
-	return {
-		"email": token_doc.email,
-		"customer": customer,
-		"bookings": bookings,
-		"invoices": invoices,
-		"projects": projects,
-		"conversations": conversations,
-	}
+	return build_portal_view(
+		email=token_doc.email,
+		customer=customer,
+		bookings=bookings,
+		invoices=invoices,
+		projects=projects,
+		conversations=conversations,
+	)
 
 
 @frappe.whitelist(allow_guest=True)

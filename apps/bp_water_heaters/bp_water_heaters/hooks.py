@@ -4,7 +4,7 @@ app_publisher = "Blueberg Construction"
 app_description = "ERPNext app for BP Water Heaters public site and booking"
 app_email = "admin@bpwaterheaters.com"
 app_license = "mit"
-app_logo_url = "/assets/bp_water_heaters/images/bpwh-mark.svg"
+app_logo_url = "/assets/bp_water_heaters/images/bpwh-logo.svg"
 app_include_css = "/assets/bp_water_heaters/css/bpwh_brand.css"
 web_include_css = "/assets/bp_water_heaters/css/bpwh_brand.css"
 
@@ -27,7 +27,7 @@ scheduler_events = {
 }
 
 website_context = {
-	"favicon": "/assets/bp_water_heaters/images/bpwh-mark.svg",
+	"favicon": "/assets/bp_water_heaters/images/bpwh-logo.svg",
 	"splash_image": "/assets/bp_water_heaters/images/bpwh-badge.svg",
 }
 
