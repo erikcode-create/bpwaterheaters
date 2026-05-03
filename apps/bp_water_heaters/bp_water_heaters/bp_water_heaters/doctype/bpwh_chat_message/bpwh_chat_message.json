@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-05-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "conversation",
+  "sender_type",
+  "sender_email",
+  "message",
+  "posted_at",
+  "read_by_admin",
+  "read_by_customer"
+ ],
+ "fields": [
+  {
+   "default": "BPWH-MSG-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "BPWH-MSG-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "conversation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Conversation",
+   "options": "BPWH Chat Conversation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sender_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Sender Type",
+   "options": "Customer\nAdmin\nSystem",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sender_email",
+   "fieldtype": "Data",
+   "label": "Sender Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Long Text",
+   "in_list_view": 1,
+   "label": "Message",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posted_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Posted At",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "read_by_admin",
+   "fieldtype": "Check",
+   "label": "Read By Admin"
+  },
+  {
+   "default": "0",
+   "fieldname": "read_by_customer",
+   "fieldtype": "Check",
+   "label": "Read By Customer"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "BP Water Heaters",
+ "name": "BPWH Chat Message",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "BPWH Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "posted_at",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "conversation",
+ "track_changes": 1
+}

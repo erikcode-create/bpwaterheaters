@@ -1,0 +1,10 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BP Water Heaters">
+  <rect width="96" height="96" fill="#040C20"/>
+  <path d="M48 7 90 25.6V68L48 89 6 68V25.6L48 7Z" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="miter"/>
+  <path d="M14 31.5 48 16.6 82 31.5V62.6L48 79.7 14 62.6V31.5Z" stroke="#FFFFFF" stroke-width="2.8" stroke-linejoin="miter"/>
+  <circle cx="48" cy="49" r="25" stroke="#FFFFFF" stroke-width="5.5"/>
+  <path d="M46 24V45H61.5C67.4 45 72 49.7 72 55.5V65C72 68.9 68.9 72 65 72H49C45.1 72 42 68.9 42 65V58.5H49V63.2C49 64.2 49.8 65 50.8 65H63.2C64.2 65 65 64.2 65 63.2V56.8C65 54.1 62.9 52 60.2 52H39V24H46Z" fill="#FFFFFF"/>
+  <path d="M54 26V33H45.8C35.4 33 27 41.4 27 51.8C27 56.8 29 61.5 32.3 64.9V72.4C24.7 67.3 20 58.8 20 49.5C20 36.5 29.1 25.6 41.3 22.7C45.2 21.8 49.6 22.4 54 26Z" fill="#FFFFFF"/>
+  <path d="M50 36H33.8C29.9 36 26.8 39.1 26.8 43V72H34V45C34 44 34.8 43.2 35.8 43.2H50V36Z" fill="#040C20"/>
+  <path d="M51 51H35V58H51C52.1 58 53 58.9 53 60V63C53 64.1 52.1 65 51 65H34V72H52.4C56.6 72 60 68.6 60 64.4V58.1C60 54.2 56.4 51 51 51Z" fill="#040C20"/>
+</svg>

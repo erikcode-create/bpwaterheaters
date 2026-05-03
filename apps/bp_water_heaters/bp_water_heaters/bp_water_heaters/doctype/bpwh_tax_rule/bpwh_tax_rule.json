@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "field:template_name",
+ "creation": "2026-05-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "template_name",
+  "state",
+  "jurisdiction",
+  "rate",
+  "source_url",
+  "effective_date",
+  "enabled"
+ ],
+ "fields": [
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Template Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "State",
+   "reqd": 1
+  },
+  {
+   "fieldname": "jurisdiction",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Jurisdiction",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Rate",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_url",
+   "fieldtype": "Data",
+   "label": "Source URL"
+  },
+  {
+   "fieldname": "effective_date",
+   "fieldtype": "Date",
+   "label": "Effective Date"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Enabled"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "BP Water Heaters",
+ "name": "BPWH Tax Rule",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "BPWH Admin"
+  }
+ ],
+ "sort_field": "state",
+ "sort_order": "ASC",
+ "states": [],
+ "title_field": "template_name",
+ "track_changes": 1
+}

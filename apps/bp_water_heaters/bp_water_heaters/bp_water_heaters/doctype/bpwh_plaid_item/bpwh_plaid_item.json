@@ -1,0 +1,129 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "field:item_id",
+ "creation": "2026-05-03 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "item_id",
+  "institution_name",
+  "status",
+  "access_token",
+  "cursor",
+  "selected_plaid_account_id",
+  "selected_account_name",
+  "selected_account_mask",
+  "bank_account",
+  "last_synced_at",
+  "last_error"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Plaid Item ID",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "institution_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Institution Name"
+  },
+  {
+   "default": "Needs Account Mapping",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Needs Account Mapping\nLinked\nSynced\nFailed\nRemoved",
+   "reqd": 1
+  },
+  {
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cursor",
+   "fieldtype": "Data",
+   "label": "Transactions Cursor"
+  },
+  {
+   "fieldname": "selected_plaid_account_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Selected Plaid Account ID"
+  },
+  {
+   "fieldname": "selected_account_name",
+   "fieldtype": "Data",
+   "label": "Selected Account Name"
+  },
+  {
+   "fieldname": "selected_account_mask",
+   "fieldtype": "Data",
+   "label": "Selected Account Mask"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "ERP Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "fieldname": "last_synced_at",
+   "fieldtype": "Datetime",
+   "label": "Last Synced At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Last Error",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-03 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "BP Water Heaters",
+ "name": "BPWH Plaid Item",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "BPWH Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "institution_name",
+ "track_changes": 1
+}

@@ -1,0 +1,32 @@
+[project]
+name = "bp_water_heaters"
+authors = [
+	{ name = "Blueberg Construction", email = "admin@bpwaterheaters.com" }
+]
+description = "ERPNext app for BP Water Heaters public site and booking"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+	"plaid-python~=7.2.1",
+	"PyJWT[crypto]>=2.8.0,<3.0.0",
+	"requests>=2.31.0,<3.0.0",
+	"stripe>=11.0.0,<14.0.0"
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "UP", "B", "RUF"]
+ignore = ["E101", "E501", "W191"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "tab"
+docstring-code-format = true

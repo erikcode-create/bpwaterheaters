@@ -1,0 +1,119 @@
+:root {
+	--bpwh-brand-navy: #040c20;
+	--bpwh-brand-white: #ffffff;
+	--bpwh-brand-ice: #f4f7fb;
+	--bpwh-brand-line: rgba(4, 12, 32, 0.16);
+}
+
+.app-logo {
+	object-fit: contain;
+}
+
+.navbar .app-logo {
+	border-radius: 2px;
+}
+
+body:has(.for-login),
+body:has(.for-email-login),
+body:has(.for-forgot),
+body:has(.for-login-with-email-link) {
+	background:
+		radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.09), transparent 32%),
+		linear-gradient(135deg, #040c20 0%, #071a33 58%, #040c20 100%);
+}
+
+body:has(.for-login) .navbar,
+body:has(.for-email-login) .navbar,
+body:has(.for-forgot) .navbar,
+body:has(.for-login-with-email-link) .navbar,
+body:has(.for-login) .web-footer,
+body:has(.for-email-login) .web-footer,
+body:has(.for-forgot) .web-footer,
+body:has(.for-login-with-email-link) .web-footer,
+body:has(.for-login) footer,
+body:has(.for-email-login) footer,
+body:has(.for-forgot) footer,
+body:has(.for-login-with-email-link) footer {
+	display: none !important;
+}
+
+.for-login,
+.for-email-login,
+.for-forgot,
+.for-login-with-email-link {
+	position: relative;
+	min-height: 100svh;
+	display: grid;
+	align-content: center;
+	padding: 32px 18px;
+	color: var(--bpwh-brand-navy);
+}
+
+.for-login::before,
+.for-email-login::before,
+.for-forgot::before,
+.for-login-with-email-link::before {
+	content: "";
+	position: fixed;
+	inset: 24px;
+	pointer-events: none;
+	border: 2px solid rgba(255, 255, 255, 0.18);
+	clip-path: polygon(50% 0, 100% 22%, 100% 78%, 50% 100%, 0 78%, 0 22%);
+}
+
+.for-login .page-card-head,
+.for-email-login .page-card-head,
+.for-forgot .page-card-head,
+.for-login-with-email-link .page-card-head {
+	margin-bottom: 18px;
+	color: var(--bpwh-brand-white);
+}
+
+.for-login .page-card-head .app-logo,
+.for-email-login .page-card-head .app-logo,
+.for-forgot .page-card-head .app-logo,
+.for-login-with-email-link .page-card-head .app-logo {
+	width: 86px;
+	height: 86px;
+	margin-bottom: 14px;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.for-login .page-card-head h4,
+.for-email-login .page-card-head h4,
+.for-forgot .page-card-head h4,
+.for-login-with-email-link .page-card-head h4 {
+	color: var(--bpwh-brand-white);
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.for-login .page-card,
+.for-email-login .page-card,
+.for-forgot .page-card,
+.for-login-with-email-link .page-card {
+	border: 1px solid rgba(255, 255, 255, 0.42);
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.96);
+	box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.for-login .btn-primary,
+.for-email-login .btn-primary,
+.for-forgot .btn-primary,
+.for-login-with-email-link .btn-primary {
+	border-color: var(--bpwh-brand-navy);
+	background: var(--bpwh-brand-navy);
+	color: var(--bpwh-brand-white);
+}
+
+.for-login .btn-login-option,
+.for-email-login .btn-login-option,
+.for-forgot .btn-login-option,
+.for-login-with-email-link .btn-login-option {
+	border-color: var(--bpwh-brand-line);
+	background: var(--bpwh-brand-ice);
+	color: var(--bpwh-brand-navy);
+}

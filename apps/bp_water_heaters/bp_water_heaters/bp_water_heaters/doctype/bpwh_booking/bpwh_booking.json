@@ -1,0 +1,315 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-05-02 16:30:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "customer_section",
+  "customer_name",
+  "email",
+  "phone",
+  "service_type",
+  "address_section",
+  "property_address",
+  "city",
+  "county",
+  "state",
+  "postal_code",
+  "schedule_section",
+  "preferred_start",
+  "preferred_end",
+  "hold_expires_at",
+  "status",
+  "payment_section",
+  "callout_fee",
+  "stripe_payment_status",
+  "payment_settlement_status",
+  "payment_method_type",
+  "stripe_customer_id",
+  "stripe_checkout_session_id",
+  "stripe_payment_intent",
+  "stripe_latest_event_id",
+  "erp_section",
+  "erp_customer",
+  "sales_invoice",
+  "payment_entry",
+  "project",
+  "tax_section",
+  "tax_template",
+  "tax_rate",
+  "tax_source_url",
+  "notes"
+ ],
+ "fields": [
+  {
+   "default": "BPWH-BKG-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "BPWH-BKG-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "customer_section",
+   "fieldtype": "Section Break",
+   "label": "Customer"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Customer Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Email",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone",
+   "reqd": 1
+  },
+  {
+   "default": "Estimate",
+   "fieldname": "service_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Service Type",
+   "options": "Estimate\nRepair\nReplacement\nCommercial\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "address_section",
+   "fieldtype": "Section Break",
+   "label": "Property Address"
+  },
+  {
+   "fieldname": "property_address",
+   "fieldtype": "Small Text",
+   "label": "Property Address",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City",
+   "reqd": 1
+  },
+  {
+   "fieldname": "county",
+   "fieldtype": "Data",
+   "label": "County"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Select",
+   "label": "State",
+   "options": "NV\nCA",
+   "reqd": 1
+  },
+  {
+   "fieldname": "postal_code",
+   "fieldtype": "Data",
+   "label": "ZIP / Postal Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Schedule"
+  },
+  {
+   "fieldname": "preferred_start",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Preferred Start",
+   "reqd": 1
+  },
+  {
+   "fieldname": "preferred_end",
+   "fieldtype": "Datetime",
+   "label": "Preferred End",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hold_expires_at",
+   "fieldtype": "Datetime",
+   "label": "Hold Expires At",
+   "read_only": 1
+  },
+  {
+   "default": "Pending Payment",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending Payment\nPayment Pending Settlement\nConfirmed\nPayment Failed\nCancelled\nCompleted\nExpired\nRefunded\nDisputed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_section",
+   "fieldtype": "Section Break",
+   "label": "Payment"
+  },
+  {
+   "default": "85",
+   "fieldname": "callout_fee",
+   "fieldtype": "Currency",
+   "label": "Call-Out Fee"
+  },
+  {
+   "default": "Not Started",
+   "fieldname": "stripe_payment_status",
+   "fieldtype": "Select",
+   "label": "Stripe Payment Status",
+   "options": "Not Started\nOpen\nPending Settlement\nPaid\nFailed\nExpired\nRefunded\nDisputed"
+  },
+  {
+   "default": "Not Started",
+   "fieldname": "payment_settlement_status",
+   "fieldtype": "Select",
+   "label": "Payment Settlement Status",
+   "options": "Not Started\nPending\nSettled\nFailed\nExpired\nRefunded\nDisputed"
+  },
+  {
+   "fieldname": "payment_method_type",
+   "fieldtype": "Data",
+   "label": "Payment Method Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stripe_customer_id",
+   "fieldtype": "Data",
+   "label": "Stripe Customer ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stripe_checkout_session_id",
+   "fieldtype": "Data",
+   "label": "Stripe Checkout Session ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stripe_payment_intent",
+   "fieldtype": "Data",
+   "label": "Stripe Payment Intent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stripe_latest_event_id",
+   "fieldtype": "Data",
+   "label": "Stripe Latest Event ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "erp_section",
+   "fieldtype": "Section Break",
+   "label": "ERP Links"
+  },
+  {
+   "fieldname": "erp_customer",
+   "fieldtype": "Link",
+   "label": "ERP Customer",
+   "options": "Customer",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_section",
+   "fieldtype": "Section Break",
+   "label": "Tax"
+  },
+  {
+   "fieldname": "tax_template",
+   "fieldtype": "Link",
+   "label": "Tax Template",
+   "options": "Sales Taxes and Charges Template",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_rate",
+   "fieldtype": "Percent",
+   "label": "Tax Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "tax_source_url",
+   "fieldtype": "Data",
+   "label": "Tax Source URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Long Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-02 16:30:00.000000",
+ "modified_by": "Administrator",
+ "module": "BP Water Heaters",
+ "name": "BPWH Booking",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "BPWH Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "preferred_start",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "customer_name",
+ "track_changes": 1
+}
