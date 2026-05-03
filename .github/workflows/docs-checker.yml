@@ -23,6 +23,7 @@ jobs:
       - name: Validate Docs
         env:
           PR_NUMBER: ${{ github.event.number }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           pip install requests --quiet
           python $GITHUB_WORKSPACE/.github/helper/documentation.py $PR_NUMBER

@@ -11,14 +11,14 @@ sudo apt install libcups2-dev redis-server mariadb-client libmariadb-dev
 pip install frappe-bench
 
 githubbranch=${GITHUB_BASE_REF:-${GITHUB_REF##*/}}
-frappeuser=${FRAPPE_USER:-"frappe"}
-frappecommitish=${FRAPPE_BRANCH:-$githubbranch}
+frameworkuser=${FRAPPE_USER:-"frappe"}
+frameworkcommitish=${FRAPPE_BRANCH:-$githubbranch}
 
 mkdir frappe
 pushd frappe
 git init
-git remote add origin "https://github.com/${frappeuser}/frappe"
-git fetch origin "${frappecommitish}" --depth 1
+git remote add origin "https://github.com/${frameworkuser}/frappe"
+git fetch origin "${frameworkcommitish}" --depth 1
 git checkout FETCH_HEAD
 popd
 
@@ -37,16 +37,16 @@ if [ "$DB" == "mariadb" ];then
     mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL character_set_server = 'utf8mb4'"
     mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci'"
 
-    mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "CREATE USER 'test_frappe'@'localhost' IDENTIFIED BY 'test_frappe'"
-    mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "CREATE DATABASE test_frappe"
-    mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "GRANT ALL PRIVILEGES ON \`test_frappe\`.* TO 'test_frappe'@'localhost'"
+    mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "CREATE USER 'test_bpwh'@'localhost' IDENTIFIED BY 'test_bpwh'"
+    mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "CREATE DATABASE test_bpwh"
+    mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "GRANT ALL PRIVILEGES ON \`test_bpwh\`.* TO 'test_bpwh'@'localhost'"
 
     mariadb --host 127.0.0.1 --port 3306 -u root -proot -e "FLUSH PRIVILEGES"
 fi
 
 if [ "$DB" == "postgres" ];then
-    echo "travis" | psql -h 127.0.0.1 -p 5432 -c "CREATE DATABASE test_frappe" -U postgres;
-    echo "travis" | psql -h 127.0.0.1 -p 5432 -c "CREATE USER test_frappe WITH PASSWORD 'test_frappe'" -U postgres;
+    echo "travis" | psql -h 127.0.0.1 -p 5432 -c "CREATE DATABASE test_bpwh" -U postgres;
+    echo "travis" | psql -h 127.0.0.1 -p 5432 -c "CREATE USER test_bpwh WITH PASSWORD 'test_bpwh'" -U postgres;
 fi
 
 
@@ -73,6 +73,6 @@ if [ "$TYPE" == "server" ]; then bench setup requirements --dev; fi
 
 wait $wkpid
 
-bench start &>> ~/frappe-bench/bench_start.log &
+bench start >> ~/frappe-bench/bench_start.log 2>&1 &
 CI=Yes bench build --app frappe &
 bench --site test_site reinstall --yes

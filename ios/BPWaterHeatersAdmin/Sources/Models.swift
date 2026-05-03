@@ -153,11 +153,11 @@ struct ContactRequest: Decodable, Identifiable {
     }
 }
 
-struct FrappeEnvelope<Value: Decodable>: Decodable {
+struct BPWHAPIEnvelope<Value: Decodable>: Decodable {
     let message: Value
 }
 
-struct FrappeErrorEnvelope: Decodable {
+struct BPWHAPIErrorEnvelope: Decodable {
     let message: String?
     let exception: String?
     let excType: String?

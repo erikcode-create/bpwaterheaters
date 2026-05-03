@@ -13,7 +13,7 @@ from frappe.utils import now_datetime
 from bp_water_heaters.api.admin import require_bpwh_admin, require_post
 from bp_water_heaters.plaid_webhook_security import decide_transactions_webhook, validate_plaid_webhook_claims
 from bp_water_heaters.plaid_sync import plaid_removed_transaction_id, plaid_transaction_to_bank_transaction
-from bp_water_heaters.security_limits import client_ip, require_frappe_rate_limit
+from bp_water_heaters.security_limits import client_ip, require_bpwh_rate_limit
 from bp_water_heaters.urls import webhook_url
 
 COMPANY = "BP Water Heaters"
@@ -140,7 +140,7 @@ def sync_bank_transactions(item: str | None = None):
 
 @frappe.whitelist(allow_guest=True)
 def transactions_webhook():
-	require_frappe_rate_limit(frappe, "plaid-webhook-ip", client_ip(frappe), limit=120, window_seconds=60)
+	require_bpwh_rate_limit(frappe, "plaid-webhook-ip", client_ip(frappe), limit=120, window_seconds=60)
 	raw_body = frappe.request.get_data() or b""
 	_verify_plaid_webhook(raw_body)
 	try:
@@ -149,7 +149,7 @@ def transactions_webhook():
 		frappe.throw(_("Plaid webhook body is invalid."), frappe.PermissionError)
 	decision = decide_transactions_webhook(payload, _known_plaid_item_ids(), _configured_plaid_environment())
 	if decision.should_sync:
-		require_frappe_rate_limit(
+		require_bpwh_rate_limit(
 			frappe,
 			"plaid-webhook-item",
 			decision.item_id,

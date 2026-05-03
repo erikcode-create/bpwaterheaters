@@ -5,9 +5,10 @@ options:
     iOS: "17.0"
 settings:
   base:
-    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ABZGHENU5Z
     MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    CURRENT_PROJECT_VERSION: "2"
 targets:
   BPWaterHeatersAdmin:
     type: application
@@ -16,7 +17,9 @@ targets:
       - Sources
     settings:
       base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         PRODUCT_BUNDLE_IDENTIFIER: com.blueberg.bpwaterheaters.admin
         INFOPLIST_FILE: Sources/Info.plist
+        TARGETED_DEVICE_FAMILY: "1"
     scheme:
       testTargets: []

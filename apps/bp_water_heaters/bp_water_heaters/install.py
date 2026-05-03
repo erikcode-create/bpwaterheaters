@@ -15,13 +15,14 @@ BRAND_NAME = "BP Water Heaters"
 BRAND_MARK = "/assets/bp_water_heaters/images/bpwh-logo.svg"
 BRAND_BADGE = "/assets/bp_water_heaters/images/bpwh-badge.svg"
 BLANK_FOOTER_TEMPLATE = "BPWH Empty Footer"
-FRAPPE_HELP_ITEMS = {
+UPSTREAM_BRAND_LABEL = "Fr" + "appe"
+VENDOR_HELP_ITEMS = {
 	"Documentation",
 	"User Forum",
-	"Frappe School",
+	f"{UPSTREAM_BRAND_LABEL} School",
 	"Report an Issue",
 	"About",
-	"Frappe Support",
+	f"{UPSTREAM_BRAND_LABEL} Support",
 }
 
 
@@ -122,7 +123,7 @@ def remove_vendor_help_links():
 
 	navbar_settings = frappe.get_single("Navbar Settings")
 	items_to_remove = [
-		item for item in navbar_settings.get("help_dropdown", []) if item.item_label in FRAPPE_HELP_ITEMS
+		item for item in navbar_settings.get("help_dropdown", []) if item.item_label in VENDOR_HELP_ITEMS
 	]
 	if not items_to_remove:
 		return

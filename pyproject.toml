@@ -1,9 +1,9 @@
 [project]
 name = "erpnext"
 authors = [
-    { name = "Frappe Technologies Pvt Ltd", email = "developers@frappe.io"}
+    { name = "BP Water Heaters" }
 ]
-description = "Open Source ERP"
+description = "ERPNext core package bundled for the BP Water Heaters private ERP system"
 requires-python = ">=3.14"
 readme = "README.md"
 dynamic = ["version"]
@@ -34,7 +34,7 @@ build-backend = "flit_core.buildapi"
 max_module_depth = 1
 skip_namespaces = [
     "erpnext.deprecation_dumpster",
-    "erpnext.assets.dashboard_fixtures",  # https://github.com/frappe/erpnext/issues/44418
+    "erpnext.assets.dashboard_fixtures",  # Upstream ERPNext issue 44418
 ]
 
 [tool.bench.frappe-dependencies]
@@ -79,7 +79,7 @@ docstring-code-format = true
 
 
 [project.urls]
-Homepage = "https://frappe.io/erpnext"
-Repository = "https://github.com/frappe/erpnext.git"
-Documentation = "https://docs.frappe.io/erpnext"
-"Bug Reports" = "https://github.com/frappe/erpnext/issues"
+Homepage = "https://bpwaterheaters.com"
+Repository = "https://github.com/erikcode-create/bpwaterheaters"
+Documentation = "https://github.com/erikcode-create/bpwaterheaters"
+"Bug Reports" = "https://github.com/erikcode-create/bpwaterheaters/issues"

@@ -1,36 +1,24 @@
-### Introduction (for first timers)
+# Contributing To BP Water Heaters
 
-Thank you for your interest in raising an Issue with ERPNext. An Issue could mean a bug report or a request for a missing feature. By raising a bug report, you are contributing to the development of ERPNext and this is the first step of participating in the community. Bug reports are very helpful for developers as they quickly fix the issue before other users start facing it.
+This is a private BP Water Heaters repository. Issues and pull requests should
+describe BP Water Heaters business behavior, deployment behavior, ERP behavior,
+or admin/mobile workflows.
 
-Feature requests are also a great way to take the product forward. New ideas can come in any user scenario and the issue list also acts a roadmap of future features.
+## Issue Guidelines
 
-When you are raising an Issue, you should keep a few things in mind. Remember that the developer does not have access to your machine so you must give all the information you can while raising an Issue. If you are suggesting a feature, you should be very clear about what you want.
+- Search existing private issues before opening a duplicate.
+- Report one problem or request per issue.
+- Include affected environment, expected behavior, actual behavior, and clear
+  reproduction steps when reporting a bug.
+- Include screenshots or logs only after removing secrets and customer-private
+  information.
+- Do not use this tracker for public ERPNext community support.
 
-The Issue list is not the right place to ask a question or start a general discussion. If you want to do that, then the right place is the forum [https://discuss.frappe.io](https://discuss.frappe.io/c/erpnext/6).
+## Pull Request Guidelines
 
-### Reply and Closing Policy
-
-If your issue is not clear or does not meet the guidelines, then it will be closed. If it is closed, please supply the requested information and re-open it.
-
-### General Issue Guidelines
-
-1. **Search existing Issues:** Before raising an Issue, search if it has been raised before. Maybe add a 👍 or give additional help by creating a mockup if it is not already created.
-2. **Report each issue separately:** Don't club multiple, unrelated issues in one note.
-3. **Brief:** Please don't include long explanations. Use screenshots and bullet points instead of descriptive paragraphs.
-
-### Bug Report Guidelines
-
-1. **Steps to Reproduce:** The bug report must have a list of steps needed to reproduce a bug. If we cannot reproduce it, then we cannot solve it.
-2. **Version Number:** Please add the version number in your report. Often a bug is fixed in the latest version.
-3. **Clear Title:** Add a clear subject to your bug report like "Unable to submit Purchase Order without Basic Rate" instead of just "Cannot Submit".
-4. **Screenshots:** Screenshots are a great way of communicating issues. Try adding annotations or using LICEcap to take a screencast in `.gif` format.
-
-### Feature Request Guidelines
-
-1. **Clarity:** Clearly specify how you want the feature to behave. Don't just say "I would like multiple PDF formats", instead say "Ability to add multiple print formats for customers with different languages".
-2. **Solution:** Try to identify what the feature should look like.
-3. **Mockups:** Mockups are a great way to explain your requirement.
-
-### What if my issue is closed
-
-Don't worry, take the feedback, supply the correct information and re-open it!
+- Keep changes focused on one BP Water Heaters concern.
+- Explain the customer, admin, accounting, portal, or deployment impact.
+- Call out schema, migration, payment, authentication, and production risks.
+- Include the tests or manual checks used to verify the change.
+- Avoid unrelated changes to vendored ERPNext core unless the PR is explicitly
+  about that core behavior.

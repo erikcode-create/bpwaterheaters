@@ -12,7 +12,7 @@ from bp_water_heaters.portal_security import (
 	issue_checkout_return_token,
 	issue_token,
 )
-from bp_water_heaters.security_limits import clamp_limit, client_ip, require_frappe_rate_limit
+from bp_water_heaters.security_limits import clamp_limit, client_ip, require_bpwh_rate_limit
 from bp_water_heaters.urls import portal_url
 
 PORTAL_INITIAL_LIMIT = 25
@@ -21,11 +21,11 @@ PORTAL_MAX_LIMIT = 50
 
 @frappe.whitelist(allow_guest=True)
 def request_magic_link(email: str):
-	require_frappe_rate_limit(frappe, "portal-magic-ip", client_ip(frappe), limit=10, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "portal-magic-ip", client_ip(frappe), limit=10, window_seconds=3600)
 	normalized_email = (email or "").strip().lower()
 	if not normalized_email:
 		frappe.throw(_("Please enter your email address."))
-	require_frappe_rate_limit(frappe, "portal-magic-email", normalized_email, limit=3, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "portal-magic-email", normalized_email, limit=3, window_seconds=3600)
 
 	issued = issue_token(normalized_email)
 	customer = _customer_for_email(normalized_email)
@@ -42,7 +42,7 @@ def request_magic_link(email: str):
 def get_portal_data(token: str):
 	token_doc = _validate_token(token)
 	customer = token_doc.customer or _customer_for_email(token_doc.email)
-	require_frappe_rate_limit(frappe, "portal-data-token", token_doc.name, limit=120, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "portal-data-token", token_doc.name, limit=120, window_seconds=3600)
 	rows = _portal_rows(token_doc.email, customer, limit=PORTAL_INITIAL_LIMIT)
 
 	token_doc.db_set("last_accessed_at", now_datetime(), update_modified=False)
@@ -62,7 +62,7 @@ def get_portal_data(token: str):
 def get_portal_history(token: str, section: str, cursor: str | None = None, limit: int = 25):
 	token_doc = _validate_token(token)
 	customer = token_doc.customer or _customer_for_email(token_doc.email)
-	require_frappe_rate_limit(frappe, "portal-history-token", token_doc.name, limit=180, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "portal-history-token", token_doc.name, limit=180, window_seconds=3600)
 	if section not in {"bookings", "invoices", "projects", "conversations"}:
 		frappe.throw(_("Unsupported portal history section."))
 	data = _portal_section_rows(token_doc.email, customer, section, limit=clamp_limit(limit, 25, PORTAL_MAX_LIMIT), cursor=cursor)
@@ -74,7 +74,7 @@ def get_portal_history(token: str, section: str, cursor: str | None = None, limi
 @frappe.whitelist(allow_guest=True)
 def create_invoice_checkout(token: str, sales_invoice: str):
 	token_doc = _validate_token(token)
-	require_frappe_rate_limit(
+	require_bpwh_rate_limit(
 		frappe,
 		"portal-checkout",
 		f"{token_doc.name}:{sales_invoice}",

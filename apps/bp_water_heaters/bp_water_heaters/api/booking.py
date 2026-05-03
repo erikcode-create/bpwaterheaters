@@ -10,7 +10,7 @@ from frappe.utils import add_to_date, get_datetime, getdate, now_datetime
 
 from bp_water_heaters.erp import prepare_booking_erp_records, record_payment_for_booking, record_payment_for_invoice
 from bp_water_heaters.payments import classify_stripe_event, redact_stripe_payload_rows, sanitize_stripe_event_for_audit
-from bp_water_heaters.security_limits import client_ip, require_frappe_rate_limit
+from bp_water_heaters.security_limits import client_ip, require_bpwh_rate_limit
 from bp_water_heaters.taxes import select_tax_rule
 from bp_water_heaters.urls import public_url
 
@@ -67,8 +67,8 @@ def create_booking_hold(
 	county: str | None = None,
 	notes: str | None = None,
 ):
-	require_frappe_rate_limit(frappe, "booking-hold-ip", client_ip(frappe), limit=8, window_seconds=3600)
-	require_frappe_rate_limit(frappe, "booking-hold-email", email, limit=4, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "booking-hold-ip", client_ip(frappe), limit=8, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "booking-hold-email", email, limit=4, window_seconds=3600)
 	slot_start = get_datetime(preferred_start)
 	slot_end = slot_start + timedelta(minutes=SLOT_MINUTES)
 
@@ -115,8 +115,8 @@ def create_booking_hold(
 
 @frappe.whitelist(allow_guest=True)
 def submit_contact_request(full_name: str, email: str, phone: str, message: str, source: str = "Website"):
-	require_frappe_rate_limit(frappe, "contact-request-ip", client_ip(frappe), limit=8, window_seconds=3600)
-	require_frappe_rate_limit(frappe, "contact-request-email", email, limit=4, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "contact-request-ip", client_ip(frappe), limit=8, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "contact-request-email", email, limit=4, window_seconds=3600)
 	if not full_name or not email or not phone or not message:
 		frappe.throw(_("Please include your name, email, phone, and message."))
 

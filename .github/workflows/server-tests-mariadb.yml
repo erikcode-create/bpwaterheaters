@@ -2,7 +2,7 @@ name: Server (Mariadb)
 
 on:
   repository_dispatch:
-    types: [frappe-framework-change]
+    types: [erp-framework-change]
   pull_request:
     paths-ignore:
       - '**.js'
@@ -19,12 +19,11 @@ on:
   workflow_dispatch:
     inputs:
       user:
-        description: 'Frappe Framework repository user (add your username for forks)'
-        required: true
-        default: 'frappe'
+        description: 'ERP framework repository user (add your username for forks)'
+        required: false
         type: string
       branch:
-        description: 'Frappe Framework branch'
+        description: 'ERP framework branch'
         default: 'develop'
         required: false
         type: string

@@ -1,17 +1,15 @@
+import os
 import sys
 from urllib.parse import urlparse
 
 import requests
 
 WEBSITE_REPOS = [
-	"erpnext_com",
-	"frappe_io",
+	"bpwaterheaters",
 ]
 
 DOCUMENTATION_DOMAINS = [
-	"docs.erpnext.com",
-	"docs.frappe.io",
-	"frappeframework.com",
+	"bpwaterheaters.com",
 ]
 
 
@@ -30,7 +28,7 @@ def is_documentation_link(word: str) -> bool:
 
 	if parsed_url.netloc == "github.com":
 		parts = parsed_url.path.split("/")
-		if len(parts) == 5 and parts[1] == "frappe" and parts[2] in WEBSITE_REPOS:
+		if len(parts) >= 3 and parts[2] in WEBSITE_REPOS:
 			return True
 
 	return False
@@ -41,9 +39,19 @@ def contains_documentation_link(body: str) -> bool:
 
 
 def check_pull_request(number: str) -> "tuple[int, str]":
-	response = requests.get(f"https://api.github.com/repos/frappe/erpnext/pulls/{number}")
+	repository = os.environ.get("GITHUB_REPOSITORY", "erikcode-create/bpwaterheaters")
+	headers = {"Accept": "application/vnd.github+json"}
+	token = os.environ.get("GITHUB_TOKEN")
+	if token:
+		headers["Authorization"] = f"Bearer {token}"
+
+	response = requests.get(
+		f"https://api.github.com/repos/{repository}/pulls/{number}",
+		headers=headers,
+		timeout=15,
+	)
 	if not response.ok:
-		return 1, "Pull Request Not Found! ⚠️"
+		return 1, "Pull request not found."
 
 	payload = response.json()
 	title = (payload.get("title") or "").lower().strip()
@@ -51,12 +59,12 @@ def check_pull_request(number: str) -> "tuple[int, str]":
 	body = (payload.get("body") or "").lower()
 
 	if not title.startswith("feat") or not head_sha or "no-docs" in body or "backport" in body:
-		return 0, "Skipping documentation checks... 🏃"
+		return 0, "Skipping documentation checks."
 
 	if contains_documentation_link(body):
-		return 0, "Documentation Link Found. You're Awesome! 🎉"
+		return 0, "Documentation link found."
 
-	return 1, "Documentation Link Not Found! ⚠️"
+	return 1, "Documentation link not found."
 
 
 if __name__ == "__main__":

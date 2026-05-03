@@ -1,8 +1,8 @@
-# BP Water Heaters Frappe Site Design
+# BP Water Heaters ERPNext Site Design
 
 ## Scope
 
-Build BP Water Heaters as a custom Frappe app installed on the ERPNext site. ERPNext remains the source of truth for booking holds, confirmed estimates, contact requests, Stripe metadata, customers, and later admin/mobile workflows.
+Build BP Water Heaters as a custom app installed on the ERPNext site. ERPNext remains the source of truth for booking holds, confirmed estimates, contact requests, Stripe metadata, customers, and later admin/mobile workflows.
 
 ## Launch Rules
 

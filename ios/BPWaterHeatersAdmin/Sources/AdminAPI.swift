@@ -36,7 +36,7 @@ final class AdminSession {
         authorize(&request)
         let (data, response) = try await URLSession.shared.data(for: request)
         try validate(response: response, data: data)
-        return try JSONDecoder().decode(FrappeEnvelope<Value>.self, from: data).message
+        return try JSONDecoder().decode(BPWHAPIEnvelope<Value>.self, from: data).message
     }
 
     func updateBookingStatus(_ booking: Booking, status: String) async throws {
@@ -144,7 +144,7 @@ final class AdminSession {
         let url = baseURL.appending(path: "/api/method/\(method)")
         let (data, response) = try await URLSession.shared.data(from: url)
         try validate(response: response, data: data)
-        return try JSONDecoder().decode(FrappeEnvelope<Value>.self, from: data).message
+        return try JSONDecoder().decode(BPWHAPIEnvelope<Value>.self, from: data).message
     }
 
     func post<Value: Decodable>(
@@ -163,7 +163,7 @@ final class AdminSession {
         }
         let (data, response) = try await URLSession.shared.data(for: request)
         try validate(response: response, data: data)
-        return try JSONDecoder().decode(FrappeEnvelope<Value>.self, from: data).message
+        return try JSONDecoder().decode(BPWHAPIEnvelope<Value>.self, from: data).message
     }
 
     private func authorize(_ request: inout URLRequest) {
@@ -262,7 +262,7 @@ final class AdminSession {
     private func validate(response: URLResponse, data: Data) throws {
         guard let http = response as? HTTPURLResponse else { return }
         guard (200..<300).contains(http.statusCode) else {
-            if let frappeError = try? JSONDecoder().decode(FrappeErrorEnvelope.self, from: data), let message = frappeError.message {
+            if let apiError = try? JSONDecoder().decode(BPWHAPIErrorEnvelope.self, from: data), let message = apiError.message {
                 throw AdminAPIError.message(message)
             }
             if let microsoftError = try? JSONDecoder().decode(MicrosoftErrorResponse.self, from: data) {

@@ -51,7 +51,7 @@ class AtomicInMemoryRateLimitStore:
 		return int(value["count"])
 
 
-class FrappeRateLimitStore:
+class FrameworkRateLimitStore:
 	def __init__(self, cache):
 		self.cache = cache
 
@@ -158,24 +158,24 @@ def hashed_identifier(value: str | None) -> str:
 	return hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:24]
 
 
-def client_ip(frappe_module) -> str:
-	local_ip = getattr(getattr(frappe_module, "local", None), "request_ip", None)
+def client_ip(framework) -> str:
+	local_ip = getattr(getattr(framework, "local", None), "request_ip", None)
 	if local_ip:
 		return str(local_ip)
-	request = getattr(frappe_module, "request", None)
+	request = getattr(framework, "request", None)
 	remote_addr = getattr(request, "remote_addr", None)
 	if remote_addr:
 		return str(remote_addr)
 	forwarded = ""
 	try:
-		forwarded = frappe_module.get_request_header("X-Forwarded-For") or ""
+		forwarded = framework.get_request_header("X-Forwarded-For") or ""
 	except Exception:
 		forwarded = ""
 	return forwarded.split(",", 1)[0].strip() or "unknown"
 
 
-def require_frappe_rate_limit(
-	frappe_module,
+def require_bpwh_rate_limit(
+	framework,
 	scope: str,
 	identifier: str | None,
 	limit: int,
@@ -183,8 +183,8 @@ def require_frappe_rate_limit(
 	message: str = "Too many requests. Please try again later.",
 ) -> None:
 	key = f"bpwh-rate:{scope}:{hashed_identifier(identifier)}"
-	store = FrappeRateLimitStore(frappe_module.cache())
+	store = FrameworkRateLimitStore(framework.cache())
 	if check_rate_limit(store, key, limit=limit, window_seconds=window_seconds):
 		return
-	error_type = getattr(frappe_module, "RateLimitExceededError", getattr(frappe_module, "ValidationError", Exception))
-	frappe_module.throw(message, error_type)
+	error_type = getattr(framework, "RateLimitExceededError", getattr(framework, "ValidationError", Exception))
+	framework.throw(message, error_type)

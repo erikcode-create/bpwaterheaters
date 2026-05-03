@@ -1,7 +1,16 @@
 # Security Policy
 
-The ERPNext team and community take security issues seriously. To report a security issue, please go through the information mentioned [here](https://frappe.io/security).
+BP Water Heaters security issues must be handled privately.
 
-You can help us make ERPNext and all its users more secure by following the [Reporting guidelines](https://frappe.io/security).
+Do not report vulnerabilities, credentials, customer data exposure, payment
+issues, portal-token issues, or admin/mobile access problems to public ERPNext
+or community trackers.
 
-We appreciate your efforts to responsibly disclose your findings. We'll endeavor to respond quickly, and will keep you updated throughout the process.
+Report issues through the private GitHub repository or the internal BP Water
+Heaters operations channel. Include the affected environment, steps to
+reproduce, expected behavior, actual behavior, and any relevant logs with
+secrets removed.
+
+Never include raw customer payment data, API keys, OAuth secrets, cookies,
+session tokens, portal tokens, or private customer details in an issue, pull
+request, commit message, screenshot, or shared log.

@@ -61,7 +61,7 @@ for _file in files_to_scan:
 
 if errors_encounter > 0:
 	print(
-		'\nVisit "https://frappeframework.com/docs/user/en/translations" to learn about valid translation strings.'
+		"\nReview the framework translation-string rules before committing these changes."
 	)
 	sys.exit(1)
 else:

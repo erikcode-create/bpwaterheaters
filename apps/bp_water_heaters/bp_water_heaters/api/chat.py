@@ -5,13 +5,13 @@ from frappe import _
 from frappe.utils import get_datetime, now_datetime
 
 from bp_water_heaters.api.portal import _validate_token
-from bp_water_heaters.security_limits import clamp_limit, client_ip, require_frappe_rate_limit
+from bp_water_heaters.security_limits import clamp_limit, client_ip, require_bpwh_rate_limit
 
 
 @frappe.whitelist(allow_guest=True)
 def start_public_chat(full_name: str, email: str, phone: str, message: str, booking: str | None = None):
-	require_frappe_rate_limit(frappe, "public-chat-ip", client_ip(frappe), limit=8, window_seconds=3600)
-	require_frappe_rate_limit(frappe, "public-chat-email", email, limit=4, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "public-chat-ip", client_ip(frappe), limit=8, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "public-chat-email", email, limit=4, window_seconds=3600)
 	if not all([full_name, email, message]):
 		frappe.throw(_("Please include your name, email, and message."))
 
@@ -35,7 +35,7 @@ def start_public_chat(full_name: str, email: str, phone: str, message: str, book
 @frappe.whitelist(allow_guest=True)
 def send_portal_message(token: str, conversation: str, message: str):
 	token_doc = _validate_token(token)
-	require_frappe_rate_limit(
+	require_bpwh_rate_limit(
 		frappe,
 		"portal-chat-reply",
 		f"{token_doc.name}:{conversation}",
@@ -57,7 +57,7 @@ def send_portal_message(token: str, conversation: str, message: str):
 @frappe.whitelist(allow_guest=True)
 def start_portal_chat(token: str, message: str, subject: str | None = None):
 	token_doc = _validate_token(token)
-	require_frappe_rate_limit(frappe, "portal-chat-start", token_doc.name, limit=10, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "portal-chat-start", token_doc.name, limit=10, window_seconds=3600)
 	conversation = frappe.get_doc(
 		{
 			"doctype": "BPWH Chat Conversation",

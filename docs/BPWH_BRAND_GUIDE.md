@@ -24,7 +24,7 @@ Do not:
 
 ## Color
 
-`#040C20` is the canonical digital navy. The PDF source uses a very close print navy, approximately `#06122C`; use the digital value in code so web, app, and Frappe surfaces stay consistent.
+`#040C20` is the canonical digital navy. The PDF source uses a very close print navy, approximately `#06122C`; use the digital value in code so web, app, and ERP surfaces stay consistent.
 
 | Token | Value | Use |
 | --- | --- | --- |

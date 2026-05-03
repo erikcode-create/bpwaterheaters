@@ -1,15 +1,16 @@
 {
-  "name": "erpnext",
-  "description": "Open Source ERP System powered by the Frappe Framework",
+  "name": "bp-water-heaters-erp",
+  "description": "Private ERPNext-backed ERP, booking, portal, and admin system for BP Water Heaters",
+  "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/frappe/erpnext.git"
+    "url": "git+https://github.com/erikcode-create/bpwaterheaters.git"
   },
-  "homepage": "https://frappe.io/erpnext",
-  "author": "Frappe Technologies Pvt. Ltd.",
+  "homepage": "https://bpwaterheaters.com",
+  "author": "BP Water Heaters",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/frappe/erpnext/issues"
+    "url": "https://github.com/erikcode-create/bpwaterheaters/issues"
   },
   "devDependencies": {},
   "dependencies": {

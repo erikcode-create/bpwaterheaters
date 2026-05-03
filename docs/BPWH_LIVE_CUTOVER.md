@@ -5,7 +5,7 @@
 - VPS: `76.13.24.125`
 - ERP compose path: `/srv/bpwaterheaters-erp/gitops`
 - Current ERP image: `bpwaterheaters-erp:bpwh-20260503k`
-- Frappe site: `erp-staging.bpwaterheaters.com`
+- ERP site: `erp-staging.bpwaterheaters.com`
 
 ## DNS Records
 
@@ -96,7 +96,7 @@ Register events:
 
 Create:
 
-- A single-tenant web app for Frappe Office 365 login.
+- A single-tenant web app for ERP Office 365 login.
 - A public/native mobile app for the iPhone PKCE flow with redirect URI `bpwhadmin://auth`.
 - A separate app/Connected App for Microsoft 365 outbound email as `curtis@bpwaterheaters.com`.
 
