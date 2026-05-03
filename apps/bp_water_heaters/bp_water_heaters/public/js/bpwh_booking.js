@@ -16,9 +16,12 @@
 	}
 
 	async function call(method, payload) {
+		const headers = {};
+		if (payload) headers["Content-Type"] = "application/json";
+		if (window.frappe?.csrf_token) headers["X-Frappe-CSRF-Token"] = window.frappe.csrf_token;
 		const response = await fetch(`/api/method/${method}`, {
 			method: payload ? "POST" : "GET",
-			headers: payload ? { "Content-Type": "application/json" } : undefined,
+			headers: Object.keys(headers).length ? headers : undefined,
 			body: payload ? JSON.stringify(payload) : undefined,
 		});
 		const data = await response.json();

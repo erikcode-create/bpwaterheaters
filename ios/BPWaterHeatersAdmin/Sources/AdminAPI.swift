@@ -39,6 +39,49 @@ final class AdminSession {
         return try JSONDecoder().decode(FrappeEnvelope<Value>.self, from: data).message
     }
 
+    func updateBookingStatus(_ booking: Booking, status: String) async throws {
+        let _: GenericActionResponse = try await post(
+            "bp_water_heaters.api.admin.update_booking_status",
+            form: ["booking": booking.name, "status": status]
+        )
+    }
+
+    func ensureJob(for booking: Booking) async throws {
+        let _: GenericActionResponse = try await post(
+            "bp_water_heaters.api.admin.ensure_job_for_booking",
+            form: ["booking": booking.name]
+        )
+    }
+
+    func updateProject(_ project: ProjectRecord, status: String? = nil, percentComplete: Double? = nil) async throws {
+        var form = ["project": project.name]
+        if let status {
+            form["status"] = status
+        }
+        if let percentComplete {
+            form["percent_complete"] = String(percentComplete)
+        }
+        let _: GenericActionResponse = try await post("bp_water_heaters.api.admin.update_project", form: form)
+    }
+
+    func chatMessages(for conversation: ChatConversation) async throws -> ChatThread {
+        try await post("bp_water_heaters.api.admin.get_chat_messages", form: ["conversation": conversation.name])
+    }
+
+    func reply(to conversation: ChatConversation, message: String) async throws {
+        let _: GenericActionResponse = try await post(
+            "bp_water_heaters.api.admin.reply_chat",
+            form: ["conversation": conversation.name, "message": message]
+        )
+    }
+
+    func updateChatStatus(_ conversation: ChatConversation, status: String) async throws {
+        let _: GenericActionResponse = try await post(
+            "bp_water_heaters.api.admin.update_chat_status",
+            form: ["conversation": conversation.name, "status": status]
+        )
+    }
+
     @MainActor
     private func beginMicrosoftLogin() async {
         do {
@@ -104,7 +147,7 @@ final class AdminSession {
         return try JSONDecoder().decode(FrappeEnvelope<Value>.self, from: data).message
     }
 
-    private func post<Value: Decodable>(
+    func post<Value: Decodable>(
         _ method: String,
         form: [String: String],
         as type: Value.Type = Value.self,

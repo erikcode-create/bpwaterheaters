@@ -13,6 +13,7 @@ after_migrate = "bp_water_heaters.install.after_migrate"
 
 website_route_rules = [
 	{"from_route": "/", "to_route": "bpwaterheaters"},
+	{"from_route": "/bpwaterheaters-admin", "to_route": "bpwaterheaters_admin"},
 	{"from_route": "/bpwaterheaters-portal", "to_route": "bpwaterheaters_portal"},
 ]
 

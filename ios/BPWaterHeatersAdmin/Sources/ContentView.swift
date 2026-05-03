@@ -119,50 +119,179 @@ struct MetricRow: View {
 struct BookingsView: View {
     let session: AdminSession
     @State private var bookings: [Booking] = []
+    @State private var error: String?
 
     var body: some View {
         NavigationStack {
             List(bookings) { booking in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(booking.customerName).font(.headline)
-                    Text("\(booking.status) · \(booking.preferredStart ?? "")")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Text(booking.email).font(.caption).foregroundStyle(.secondary)
+                BookingRow(session: session, booking: booking) {
+                    await load()
                 }
-                .frame(minHeight: 56)
             }
             .navigationTitle("Bookings")
+            .overlay {
+                if let error {
+                    ContentUnavailableView("Bookings unavailable", systemImage: "calendar.badge.exclamationmark", description: Text(error))
+                }
+            }
+            .refreshable {
+                await load()
+            }
             .task {
-                bookings = (try? await session.get("bp_water_heaters.api.admin.list_bookings")) ?? []
+                await load()
             }
         }
+    }
+
+    private func load() async {
+        do {
+            bookings = try await session.get("bp_water_heaters.api.admin.list_bookings")
+            error = nil
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+}
+
+struct BookingRow: View {
+    let session: AdminSession
+    let booking: Booking
+    let reload: () async -> Void
+
+    private let statuses = [
+        "Pending Payment",
+        "Payment Pending Settlement",
+        "Confirmed",
+        "Payment Failed",
+        "Cancelled",
+        "Completed",
+        "Expired",
+        "Refunded",
+        "Disputed"
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(booking.customerName).font(.headline)
+                Text("\(booking.status) · \(booking.preferredStart ?? "")")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Text(booking.email).font(.caption).foregroundStyle(.secondary)
+            }
+            HStack {
+                Menu("Status") {
+                    ForEach(statuses, id: \.self) { status in
+                        Button(status) {
+                            Task {
+                                try? await session.updateBookingStatus(booking, status: status)
+                                await reload()
+                            }
+                        }
+                    }
+                }
+                .frame(minHeight: 44)
+                Button("Create Job") {
+                    Task {
+                        try? await session.ensureJob(for: booking)
+                        await reload()
+                    }
+                }
+                .frame(minHeight: 44)
+            }
+            .buttonStyle(.bordered)
+        }
+        .frame(minHeight: 84)
     }
 }
 
 struct JobsView: View {
     let session: AdminSession
     @State private var projects: [ProjectRecord] = []
+    @State private var error: String?
 
     var body: some View {
         NavigationStack {
             List(projects) { project in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(project.projectName).font(.headline)
-                    Text("\(project.status) · \(Int(project.percentComplete ?? 0))%")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    if let customer = project.customer {
-                        Text(customer).font(.caption).foregroundStyle(.secondary)
-                    }
+                ProjectRow(session: session, project: project) {
+                    await load()
                 }
-                .frame(minHeight: 56)
             }
             .navigationTitle("Jobs")
+            .overlay {
+                if let error {
+                    ContentUnavailableView("Jobs unavailable", systemImage: "checklist.unchecked", description: Text(error))
+                }
+            }
+            .refreshable {
+                await load()
+            }
             .task {
-                projects = (try? await session.get("bp_water_heaters.api.admin.list_projects")) ?? []
+                await load()
             }
         }
+    }
+
+    private func load() async {
+        do {
+            projects = try await session.get("bp_water_heaters.api.admin.list_projects")
+            error = nil
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+}
+
+struct ProjectRow: View {
+    let session: AdminSession
+    let project: ProjectRecord
+    let reload: () async -> Void
+    @State private var percent: Double
+
+    init(session: AdminSession, project: ProjectRecord, reload: @escaping () async -> Void) {
+        self.session = session
+        self.project = project
+        self.reload = reload
+        _percent = State(initialValue: project.percentComplete ?? 0)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(project.projectName).font(.headline)
+                Text("\(project.status) · \(Int(percent))%")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                if let customer = project.customer {
+                    Text(customer).font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            Slider(value: $percent, in: 0...100, step: 5) {
+                Text("Progress")
+            } minimumValueLabel: {
+                Text("0")
+            } maximumValueLabel: {
+                Text("100")
+            }
+            .onChange(of: percent) { _, newValue in
+                Task {
+                    try? await session.updateProject(project, percentComplete: newValue)
+                }
+            }
+            HStack {
+                ForEach(["Open", "Completed", "Cancelled"], id: \.self) { status in
+                    Button(status) {
+                        Task {
+                            try? await session.updateProject(project, status: status, percentComplete: status == "Completed" ? 100 : nil)
+                            await reload()
+                        }
+                    }
+                    .frame(minHeight: 44)
+                }
+            }
+            .buttonStyle(.bordered)
+        }
+        .frame(minHeight: 110)
     }
 }
 
@@ -225,23 +354,144 @@ struct ContactsView: View {
 struct ChatsView: View {
     let session: AdminSession
     @State private var chats: [ChatConversation] = []
+    @State private var error: String?
 
     var body: some View {
         NavigationStack {
             List(chats) { chat in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(chat.subject).font(.headline)
-                    Text("\(chat.status) · \(chat.email ?? "")")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                NavigationLink {
+                    ChatDetailView(session: session, conversation: chat)
+                } label: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(chat.subject).font(.headline)
+                        Text("\(chat.status) · \(chat.email ?? "")")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(minHeight: 56)
                 }
-                .frame(minHeight: 56)
             }
             .navigationTitle("Chat")
+            .overlay {
+                if let error {
+                    ContentUnavailableView("Chat unavailable", systemImage: "message.badge", description: Text(error))
+                }
+            }
+            .refreshable {
+                await load()
+            }
             .task {
-                chats = (try? await session.get("bp_water_heaters.api.admin.list_chats")) ?? []
+                await load()
             }
         }
+    }
+
+    private func load() async {
+        do {
+            chats = try await session.get("bp_water_heaters.api.admin.list_chats")
+            error = nil
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+}
+
+struct ChatDetailView: View {
+    let session: AdminSession
+    let conversation: ChatConversation
+    @State private var thread: ChatThread?
+    @State private var reply = ""
+    @State private var error: String?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 12) {
+                    ForEach(thread?.messages ?? []) { message in
+                        ChatBubble(message: message)
+                    }
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            Divider()
+            VStack(spacing: 12) {
+                TextField("Reply to customer", text: $reply, axis: .vertical)
+                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(2...5)
+                HStack {
+                    Button("Close") {
+                        Task {
+                            try? await session.updateChatStatus(conversation, status: "Closed")
+                            await load()
+                        }
+                    }
+                    .frame(minHeight: 44)
+                    Spacer()
+                    Button("Send") {
+                        Task { await send() }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .frame(minHeight: 44)
+                    .disabled(reply.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
+            .padding(16)
+        }
+        .navigationTitle(conversation.subject)
+        .navigationBarTitleDisplayMode(.inline)
+        .overlay {
+            if let error {
+                ContentUnavailableView("Chat unavailable", systemImage: "message.badge", description: Text(error))
+            }
+        }
+        .task {
+            await load()
+        }
+    }
+
+    private func load() async {
+        do {
+            thread = try await session.chatMessages(for: conversation)
+            error = nil
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    private func send() async {
+        let message = reply.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !message.isEmpty else { return }
+        do {
+            try await session.reply(to: conversation, message: message)
+            reply = ""
+            await load()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+}
+
+struct ChatBubble: View {
+    let message: ChatMessage
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(message.senderType)
+                .font(.caption.bold())
+            Text(message.message)
+                .font(.body)
+            if let postedAt = message.postedAt {
+                Text(postedAt)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: 320, alignment: .leading)
+        .background(message.senderType == "Admin" ? Color.accentColor.opacity(0.16) : Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .frame(maxWidth: .infinity, alignment: message.senderType == "Admin" ? .trailing : .leading)
     }
 }
 

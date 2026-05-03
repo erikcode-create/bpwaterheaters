@@ -1,0 +1,89 @@
+{% extends "templates/web.html" %}
+
+{% block footer %}{% endblock %}
+
+{% block head_include %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/bp_water_heaters/css/bpwh.css">
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js" defer></script>
+{% endblock %}
+
+{% block page_content %}
+<main class="bpwh-site bpwh-admin">
+	<nav class="bpwh-nav bpwh-nav--portal" aria-label="BP Water Heaters admin">
+		<a class="bpwh-brand" href="/bpwaterheaters-admin" aria-label="BP Water Heaters admin home">
+			<img src="/assets/bp_water_heaters/images/bpwh-mark.svg" alt="">
+			<span>BP Water Heaters</span>
+		</a>
+		<div class="bpwh-nav__actions">
+			<a href="/app">ERP</a>
+			<a href="/bpwaterheaters">Public site</a>
+		</div>
+	</nav>
+
+	<section class="bpwh-section bpwh-section--admin" aria-labelledby="admin-title">
+		<div class="bpwh-section__intro">
+			<p class="bpwh-kicker">Operations console</p>
+			<h1 id="admin-title">Bookings, jobs, payments, and chat.</h1>
+			<p id="bpwh-admin-status">Loading BP Water Heaters operations.</p>
+		</div>
+		<div class="bpwh-admin-metrics" id="bpwh-admin-metrics" aria-live="polite"></div>
+		<div class="bpwh-admin-layout">
+			<section class="bpwh-admin-panel bpwh-admin-panel--wide" aria-labelledby="plaid-title">
+				<div class="bpwh-admin-panel__header">
+					<div>
+						<p class="bpwh-kicker">Bank reconciliation</p>
+						<h2 id="plaid-title">Plaid production bank link</h2>
+					</div>
+					<button class="bpwh-button bpwh-button--primary" id="bpwh-plaid-connect" type="button">Connect bank</button>
+				</div>
+				<div class="bpwh-admin-message" id="bpwh-plaid-message"></div>
+				<div class="bpwh-admin-list" id="bpwh-plaid-items"></div>
+			</section>
+
+			<section class="bpwh-admin-panel" aria-labelledby="booking-title">
+				<div class="bpwh-admin-panel__header">
+					<div>
+						<p class="bpwh-kicker">Schedule</p>
+						<h2 id="booking-title">Bookings</h2>
+					</div>
+				</div>
+				<div class="bpwh-admin-list" id="bpwh-admin-bookings"></div>
+			</section>
+
+			<section class="bpwh-admin-panel" aria-labelledby="job-title">
+				<div class="bpwh-admin-panel__header">
+					<div>
+						<p class="bpwh-kicker">Field work</p>
+						<h2 id="job-title">Jobs</h2>
+					</div>
+				</div>
+				<div class="bpwh-admin-list" id="bpwh-admin-projects"></div>
+			</section>
+
+			<section class="bpwh-admin-panel" aria-labelledby="chat-title">
+				<div class="bpwh-admin-panel__header">
+					<div>
+						<p class="bpwh-kicker">Live help</p>
+						<h2 id="chat-title">Chat queue</h2>
+					</div>
+				</div>
+				<div class="bpwh-admin-list" id="bpwh-admin-chats"></div>
+			</section>
+
+			<section class="bpwh-admin-panel" aria-labelledby="invoice-title">
+				<div class="bpwh-admin-panel__header">
+					<div>
+						<p class="bpwh-kicker">Accounting</p>
+						<h2 id="invoice-title">Invoices</h2>
+					</div>
+				</div>
+				<div class="bpwh-admin-list" id="bpwh-admin-invoices"></div>
+			</section>
+		</div>
+	</section>
+</main>
+<script src="/assets/bp_water_heaters/js/bpwh_admin.js"></script>
+{% endblock %}

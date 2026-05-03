@@ -65,6 +65,47 @@ def list_chats(limit: int = 50):
 
 
 @frappe.whitelist(allow_guest=True)
+def get_chat_messages(conversation: str):
+	require_bpwh_admin()
+	if not frappe.db.exists("BPWH Chat Conversation", conversation):
+		frappe.throw(_("Chat conversation not found."))
+
+	frappe.db.sql(
+		"""
+		update `tabBPWH Chat Message`
+		set read_by_admin = 1
+		where conversation = %s
+		""",
+		(conversation,),
+	)
+	return {
+		"conversation": frappe.db.get_value(
+			"BPWH Chat Conversation",
+			conversation,
+			["name", "subject", "status", "customer_name", "email", "phone", "booking", "last_message_at"],
+			as_dict=True,
+		),
+		"messages": frappe.get_all(
+			"BPWH Chat Message",
+			filters={"conversation": conversation},
+			fields=["name", "sender_type", "sender_email", "message", "posted_at"],
+			order_by="posted_at asc",
+			limit_page_length=200,
+		),
+	}
+
+
+@frappe.whitelist(allow_guest=True)
+def update_chat_status(conversation: str, status: str):
+	require_bpwh_admin()
+	allowed = {"Open", "Waiting on Customer", "Closed"}
+	if status not in allowed:
+		frappe.throw(_("Unsupported chat status."))
+	frappe.db.set_value("BPWH Chat Conversation", conversation, "status", status, update_modified=True)
+	return {"conversation": conversation, "status": status}
+
+
+@frappe.whitelist(allow_guest=True)
 def list_projects(limit: int = 50):
 	require_bpwh_admin()
 	return frappe.get_all(
@@ -74,6 +115,29 @@ def list_projects(limit: int = 50):
 		order_by="modified desc",
 		limit_page_length=min(int(limit or 50), 200),
 	)
+
+
+@frappe.whitelist(allow_guest=True)
+def update_project(project: str, status: str | None = None, percent_complete: float | None = None):
+	require_bpwh_admin()
+	if not frappe.db.exists("Project", project):
+		frappe.throw(_("Project not found."))
+
+	updates = {}
+	if status:
+		allowed_statuses = {"Open", "Completed", "Cancelled"}
+		if status not in allowed_statuses:
+			frappe.throw(_("Unsupported project status."))
+		updates["status"] = status
+	if percent_complete is not None and str(percent_complete) != "":
+		percent = max(0, min(float(percent_complete), 100))
+		updates["percent_complete"] = percent
+
+	if not updates:
+		return {"project": project}
+
+	frappe.db.set_value("Project", project, updates, update_modified=True)
+	return {"project": project, **updates}
 
 
 @frappe.whitelist(allow_guest=True)
@@ -134,6 +198,18 @@ def customer_history(email: str):
 def reply_chat(conversation: str, message: str):
 	user = require_bpwh_admin()
 	return admin_reply(conversation, message, user)
+
+
+@frappe.whitelist(allow_guest=True)
+def ensure_job_for_booking(booking: str):
+	require_bpwh_admin()
+	if not frappe.db.exists("BPWH Booking", booking):
+		frappe.throw(_("Booking not found."))
+	from bp_water_heaters.erp import prepare_booking_erp_records
+
+	doc = frappe.get_doc("BPWH Booking", booking)
+	records = prepare_booking_erp_records(doc)
+	return {"booking": booking, **records}
 
 
 @frappe.whitelist(allow_guest=True)

@@ -66,6 +66,29 @@ struct ChatConversation: Decodable, Identifiable {
     }
 }
 
+struct ChatThread: Decodable {
+    let conversation: ChatConversation
+    let messages: [ChatMessage]
+}
+
+struct ChatMessage: Decodable, Identifiable {
+    let name: String
+    let senderType: String
+    let senderEmail: String?
+    let message: String
+    let postedAt: String?
+
+    var id: String { name }
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case senderType = "sender_type"
+        case senderEmail = "sender_email"
+        case message
+        case postedAt = "posted_at"
+    }
+}
+
 struct ProjectRecord: Decodable, Identifiable {
     let name: String
     let projectName: String
@@ -147,6 +170,13 @@ struct FrappeErrorEnvelope: Decodable {
 }
 
 struct EmptyResponse: Decodable {}
+
+struct GenericActionResponse: Decodable {
+    let booking: String?
+    let project: String?
+    let conversation: String?
+    let status: String?
+}
 
 struct MobileOAuthConfig: Decodable {
     let configured: Bool

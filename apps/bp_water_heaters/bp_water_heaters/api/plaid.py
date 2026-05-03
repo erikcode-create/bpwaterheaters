@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from typing import Any
 
 import frappe
@@ -20,11 +21,22 @@ PLAID_ENVIRONMENTS = {
 TRANSACTIONS_WEBHOOK_METHOD = "bp_water_heaters.api.plaid.transactions_webhook"
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
+def status():
+	require_bpwh_admin()
+	return {
+		"configured": _plaid_is_configured(),
+		"environment": (frappe.conf.get("bpwh_plaid_environment") or "production").strip().lower(),
+		"items": _plaid_items(),
+		"bank_accounts": _bank_accounts(),
+	}
+
+
+@frappe.whitelist(allow_guest=True)
 def create_link_token():
 	require_bpwh_admin()
 	payload = {
-		"user": {"client_user_id": frappe.session.user},
+		"user": {"client_user_id": _client_user_id()},
 		"client_name": "BP Water Heaters ERP",
 		"products": ["transactions"],
 		"country_codes": ["US"],
@@ -40,7 +52,7 @@ def create_link_token():
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def exchange_public_token(public_token: str, institution_name: str | None = None):
 	require_bpwh_admin()
 	if not public_token:
@@ -61,7 +73,7 @@ def exchange_public_token(public_token: str, institution_name: str | None = None
 	return {"item": doc.name, "item_id": item_id, "status": doc.status}
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def list_plaid_accounts(item: str):
 	require_bpwh_admin()
 	doc = frappe.get_doc("BPWH Plaid Item", item)
@@ -73,17 +85,21 @@ def list_plaid_accounts(item: str):
 	}
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def map_plaid_account(item: str, plaid_account_id: str, bank_account: str):
 	require_bpwh_admin()
-	if not frappe.db.exists("Bank Account", bank_account):
-		frappe.throw(_("ERPNext Bank Account {0} does not exist.").format(bank_account))
-
 	doc = frappe.get_doc("BPWH Plaid Item", item)
 	accounts = list_plaid_accounts(doc.name)["accounts"]
 	selected = next((account for account in accounts if account["account_id"] == plaid_account_id), None)
 	if not selected:
 		frappe.throw(_("That Plaid account is not available for this Item."))
+
+	if not bank_account or bank_account == "__create__":
+		bank_account = _ensure_erp_bank_account(doc, selected)
+	elif not frappe.db.exists("Bank Account", bank_account):
+		frappe.throw(_("ERPNext Bank Account {0} does not exist.").format(bank_account))
+	else:
+		_update_bank_account_metadata(bank_account, doc, selected)
 
 	doc.selected_plaid_account_id = selected["account_id"]
 	doc.selected_account_name = selected.get("name")
@@ -258,6 +274,109 @@ def _plaid_request(endpoint: str, payload: dict[str, Any]):
 		message = data.get("error_message") or data.get("error") or response.text
 		frappe.throw(_("Plaid request failed: {0}").format(message))
 	return data
+
+
+def _plaid_is_configured():
+	return bool(frappe.conf.get("bpwh_plaid_client_id") and frappe.conf.get("bpwh_plaid_secret"))
+
+
+def _plaid_items():
+	return frappe.get_all(
+		"BPWH Plaid Item",
+		fields=[
+			"name",
+			"item_id",
+			"institution_name",
+			"status",
+			"selected_account_name",
+			"selected_account_mask",
+			"bank_account",
+			"last_synced_at",
+			"last_error",
+		],
+		order_by="modified desc",
+		limit_page_length=50,
+	)
+
+
+def _bank_accounts():
+	meta = frappe.get_meta("Bank Account")
+	fields = ["name"]
+	for field in ["account_name", "bank", "account", "is_company_account"]:
+		if meta.has_field(field):
+			fields.append(field)
+	return frappe.get_all("Bank Account", fields=fields, order_by="modified desc", limit_page_length=100)
+
+
+def _client_user_id():
+	source = f"{frappe.local.site}:{frappe.session.user}"
+	digest = hashlib.sha256(source.encode("utf-8")).hexdigest()
+	return f"bpwh-{digest[:24]}"
+
+
+def _ensure_erp_bank_account(item_doc, selected):
+	integration_id = selected["account_id"]
+	existing = frappe.db.exists("Bank Account", {"integration_id": integration_id})
+	if existing:
+		_update_bank_account_metadata(existing, item_doc, selected)
+		return existing
+
+	institution_name = (item_doc.institution_name or "Plaid Bank").strip()
+	if not frappe.db.exists("Bank", institution_name):
+		frappe.get_doc({"doctype": "Bank", "bank_name": institution_name}).insert(ignore_permissions=True)
+
+	parent_account = frappe.db.exists("Account", "Bank Accounts - BPWH")
+	if not parent_account:
+		frappe.throw(_("BPWH bank parent account is not configured."))
+
+	account_name = _bank_gl_account_name(item_doc, selected)
+	gl_account = frappe.db.exists("Account", f"{account_name} - BPWH")
+	if not gl_account:
+		gl_account = frappe.get_doc(
+			{
+				"doctype": "Account",
+				"account_name": account_name,
+				"parent_account": parent_account,
+				"account_type": "Bank",
+				"company": COMPANY,
+			}
+		).insert(ignore_permissions=True).name
+
+	bank_account = frappe.get_doc(
+		{
+			"doctype": "Bank Account",
+			"account_name": selected.get("name") or account_name,
+			"bank": institution_name,
+			"account": gl_account,
+			"mask": selected.get("mask"),
+			"integration_id": integration_id,
+			"is_company_account": 1,
+			"company": COMPANY,
+		}
+	)
+	bank_account.insert(ignore_permissions=True)
+	return bank_account.name
+
+
+def _update_bank_account_metadata(bank_account, item_doc, selected):
+	updates = {
+		"account_name": selected.get("name"),
+		"mask": selected.get("mask"),
+		"integration_id": selected.get("account_id"),
+		"is_company_account": 1,
+		"company": COMPANY,
+	}
+	if item_doc.institution_name:
+		if not frappe.db.exists("Bank", item_doc.institution_name):
+			frappe.get_doc({"doctype": "Bank", "bank_name": item_doc.institution_name}).insert(ignore_permissions=True)
+		updates["bank"] = item_doc.institution_name
+	frappe.db.set_value("Bank Account", bank_account, updates, update_modified=True)
+
+
+def _bank_gl_account_name(item_doc, selected):
+	parts = [selected.get("name") or "Operating Bank", item_doc.institution_name, selected.get("mask")]
+	name = " ".join(part for part in parts if part)
+	return name[:120]
 
 
 def _plaid_base_url():

@@ -45,6 +45,26 @@ def send_portal_message(token: str, conversation: str, message: str):
 
 
 @frappe.whitelist(allow_guest=True)
+def start_portal_chat(token: str, message: str, subject: str | None = None):
+	token_doc = _validate_token(token)
+	conversation = frappe.get_doc(
+		{
+			"doctype": "BPWH Chat Conversation",
+			"subject": (subject or "Customer portal chat").strip()[:140],
+			"status": "Open",
+			"customer_name": token_doc.email,
+			"email": token_doc.email,
+			"customer": token_doc.customer,
+			"portal_token": token_doc.name,
+			"last_message_at": now_datetime(),
+		}
+	)
+	conversation.insert(ignore_permissions=True)
+	_add_message(conversation.name, "Customer", token_doc.email, message, read_by_customer=1)
+	return {"conversation": conversation.name, "status": conversation.status}
+
+
+@frappe.whitelist(allow_guest=True)
 def get_portal_messages(token: str, conversation: str):
 	token_doc = _validate_token(token)
 	if not _conversation_belongs_to_email(conversation, token_doc.email):
