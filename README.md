@@ -54,6 +54,8 @@ BP Water Heaters assets under the expected ERPNext asset path.
 
 Deployment should preserve ERPNext as the operational source of truth while
 presenting BP Water Heaters branding to customers, admins, and internal users.
+Use `bpwhdeploy@76.13.24.125` for production SSH deploys; the production compose
+runbook lives in `docs/BPWH_LIVE_CUTOVER.md`.
 
 ## Security
 

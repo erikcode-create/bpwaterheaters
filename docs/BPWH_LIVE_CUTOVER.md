@@ -3,9 +3,35 @@
 ## Deployed Code
 
 - VPS: `76.13.24.125`
+- Deploy SSH user: `bpwhdeploy@76.13.24.125`
 - ERP compose path: `/srv/bpwaterheaters-erp/gitops`
-- Current ERP image: `bpwaterheaters-erp:bpwh-20260503k`
+- Current ERP image: `bpwaterheaters-erp:bpwh-20260504a`
 - ERP site: `erp-staging.bpwaterheaters.com`
+
+Do not deploy as `erik@76.13.24.125`; that user does not exist on the VPS. The
+`bpwhdeploy` user has SSH key access, Docker access, and group write access to
+the BP Water Heaters ERP compose and custom image directories.
+
+## Deploy Command Pattern
+
+Set a new image tag, sync the BP custom app, build the image on the VPS, update
+compose, restart the ERP stack, then run migration and cache clear through the
+backend container:
+
+```bash
+export BPWH_HOST=bpwhdeploy@76.13.24.125
+export BPWH_IMAGE_TAG=bpwh-YYYYMMDDx
+
+rsync -az --delete deploy/bpwh-erp/Dockerfile \
+	"$BPWH_HOST:/srv/bpwaterheaters-erp/custom-image/Dockerfile"
+rsync -az --delete --exclude '.pytest_cache' --exclude '__pycache__' \
+	apps/bp_water_heaters/ \
+	"$BPWH_HOST:/srv/bpwaterheaters-erp/custom-image/apps/bp_water_heaters/"
+
+ssh "$BPWH_HOST" "cd /srv/bpwaterheaters-erp/custom-image && docker build --platform linux/amd64 -t bpwaterheaters-erp:$BPWH_IMAGE_TAG ."
+ssh "$BPWH_HOST" "cd /srv/bpwaterheaters-erp/gitops && cp docker-compose.yml docker-compose.yml.backup.\$(date -u +%Y%m%d%H%M%S) && perl -0pi -e 's#bpwaterheaters-erp:bpwh-[A-Za-z0-9]+#bpwaterheaters-erp:$BPWH_IMAGE_TAG#g' docker-compose.yml && docker compose config && docker compose up -d"
+ssh "$BPWH_HOST" "cd /srv/bpwaterheaters-erp/gitops && docker compose exec -T backend bench --site erp-staging.bpwaterheaters.com migrate && docker compose exec -T backend bench --site erp-staging.bpwaterheaters.com clear-cache"
+```
 
 ## DNS Records
 
@@ -51,8 +77,9 @@ bench --site erp-staging.bpwaterheaters.com set-config bpwh_plaid_secret '...'
 Then run:
 
 ```bash
-bench --site erp-staging.bpwaterheaters.com migrate
-bench --site erp-staging.bpwaterheaters.com clear-cache
+cd /srv/bpwaterheaters-erp/gitops
+docker compose exec -T backend bench --site erp-staging.bpwaterheaters.com migrate
+docker compose exec -T backend bench --site erp-staging.bpwaterheaters.com clear-cache
 ```
 
 ## Password Login Disable
@@ -67,9 +94,10 @@ bench --site erp-staging.bpwaterheaters.com migrate
 Emergency recovery over SSH:
 
 ```bash
-bench --site erp-staging.bpwaterheaters.com set-config bpwh_disable_password_login_after_microsoft 0
-bench --site erp-staging.bpwaterheaters.com set-config disable_user_pass_login 0
-bench --site erp-staging.bpwaterheaters.com clear-cache
+cd /srv/bpwaterheaters-erp/gitops
+docker compose exec -T backend bench --site erp-staging.bpwaterheaters.com set-config bpwh_disable_password_login_after_microsoft 0
+docker compose exec -T backend bench --site erp-staging.bpwaterheaters.com set-config disable_user_pass_login 0
+docker compose exec -T backend bench --site erp-staging.bpwaterheaters.com clear-cache
 ```
 
 ## Stripe
