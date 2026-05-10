@@ -5,172 +5,470 @@
 {% block head_include %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/bp_water_heaters/css/bpwh.css">
+<script src="/assets/bp_water_heaters/js/bpwh_public.js" defer></script>
 {% endblock %}
 
 {% block page_content %}
 {% if is_portal_root %}
 {% include "bp_water_heaters/templates/includes/bpwh_portal_content.html" %}
 {% else %}
-<main class="bpwh-site">
-	<section class="bpwh-hero" aria-labelledby="bpwh-title">
-		<div class="bpwh-hero__shade"></div>
-		<nav class="bpwh-nav" aria-label="BP Water Heaters">
-			<a class="bpwh-brand" href="/bpwaterheaters" aria-label="BP Water Heaters home">
-				<img src="/assets/bp_water_heaters/images/bpwh-logo.svg" alt="">
-				<span>BP Water Heaters</span>
+<main class="bpwh-public" id="top">
+	<nav class="bpwh-public-nav" data-bpwh-public-nav aria-label="BP Water Heaters">
+		<div class="bpwh-public-wrap bpwh-public-nav__inner">
+			<a class="bpwh-public-brand" href="#top" aria-label="BP Water Heaters home">
+				<span class="bpwh-public-logo">
+					<img src="/assets/bp_water_heaters/images/bp-logo.png" alt="">
+				</span>
+				<span class="bpwh-public-brand__copy">
+					<span>BP Water Heaters</span>
+					<small>NV LIC #0095421</small>
+				</span>
 			</a>
-			<div class="bpwh-nav__actions">
-				<a href="tel:+17758159875">775-815-9875</a>
-				<a href="#booking">Book estimate</a>
+			<div class="bpwh-public-nav__links" aria-label="Page sections">
+				<a href="#services">Services</a>
+				<a href="#process">How it works</a>
+				<a href="#booking">Book</a>
+				<a href="#coverage">Service area</a>
+				<a href="#faq">FAQ</a>
 			</div>
-		</nav>
-		<div class="bpwh-hero__content">
-			<p class="bpwh-kicker">Northern Nevada and California</p>
-			<h1 id="bpwh-title">BP Water Heaters</h1>
-			<p class="bpwh-hero__copy">
-				Residential and commercial water heater estimates, repairs, and replacements with
-				a paid call-out fee credited toward approved work.
-			</p>
-			<div class="bpwh-hero__cta" aria-label="Primary actions">
-				<a class="bpwh-button bpwh-button--primary" href="#booking">Book a $85 estimate</a>
-				<a class="bpwh-button bpwh-button--ghost" href="tel:+17758159875">Call now</a>
+			<div class="bpwh-public-nav__actions">
+				<a class="bpwh-public-phone" href="tel:+17758159875">
+					<span class="bpwh-public-pulse" aria-hidden="true"></span>
+					(775) 815-9875
+				</a>
+				<a class="bpwh-public-btn bpwh-public-btn--primary" href="#booking">Book estimate</a>
 			</div>
 		</div>
+	</nav>
+
+	<section class="bpwh-public-hero" aria-labelledby="bpwh-title">
+		<div class="bpwh-public-hero__bg" aria-hidden="true"></div>
+		<div class="bpwh-public-hero__grid" aria-hidden="true"></div>
+		<div class="bpwh-public-wrap bpwh-public-hero__inner">
+			<div class="bpwh-public-hero__copy">
+				<p class="bpwh-public-eyebrow bpwh-reveal">Northern Nevada - Reno, Sparks, Carson, Tahoe</p>
+				<h1 class="bpwh-reveal" data-delay="1" id="bpwh-title">
+					Hot water, handled <span>same week.</span>
+				</h1>
+				<p class="bpwh-public-lead bpwh-reveal" data-delay="2">
+					Licensed, insured water heater specialists for estimates, repairs, replacements,
+					tank and tankless systems across Northern Nevada and the eastern Sierra.
+				</p>
+				<div class="bpwh-public-hero__cta bpwh-reveal" data-delay="3" aria-label="Primary actions">
+					<a class="bpwh-public-btn bpwh-public-btn--primary bpwh-public-btn--large" href="#booking">Book an $85 estimate</a>
+					<a class="bpwh-public-btn bpwh-public-btn--ghost bpwh-public-btn--large" href="tel:+17758159875">Call (775) 815-9875</a>
+					<span class="bpwh-public-price-chip">
+						<strong>$85</strong>
+						<span>credited to approved work</span>
+					</span>
+				</div>
+			</div>
+
+			<aside class="bpwh-public-live-card bpwh-reveal" data-delay="4" aria-label="Booking highlights">
+				<p class="bpwh-public-card-label">Online booking</p>
+				<h2>Reserve a real service window.</h2>
+				<div class="bpwh-public-heater" aria-hidden="true">
+					<div class="bpwh-public-heater__tank"></div>
+					<div class="bpwh-public-heater__pipe bpwh-public-heater__pipe--left"></div>
+					<div class="bpwh-public-heater__pipe bpwh-public-heater__pipe--right"></div>
+					<div class="bpwh-public-heater__gauge"></div>
+					<span class="bpwh-public-drop bpwh-public-drop--one"></span>
+					<span class="bpwh-public-drop bpwh-public-drop--two"></span>
+					<span class="bpwh-public-drop bpwh-public-drop--three"></span>
+				</div>
+				<dl class="bpwh-public-card-list">
+					<div>
+						<dt>Estimate fee</dt>
+						<dd>$85 flat</dd>
+					</div>
+					<div>
+						<dt>Checkout</dt>
+						<dd>Stripe secured</dd>
+					</div>
+					<div>
+						<dt>Schedule</dt>
+						<dd>Mon-Fri, 9 AM-5 PM</dd>
+					</div>
+				</dl>
+				<a class="bpwh-public-btn bpwh-public-btn--ember bpwh-public-btn--block" href="#booking">Reserve a slot</a>
+			</aside>
+		</div>
 	</section>
 
-	<section class="bpwh-section bpwh-section--services" aria-labelledby="services-title">
-		<div class="bpwh-section__intro">
-			<p class="bpwh-kicker">Built for the work</p>
-			<h2 id="services-title">Water heater service without the runaround.</h2>
-			<p>
-				From standard tank replacements to commercial service calls, BP Water Heaters keeps the
-				first step simple: reserve a real appointment, pay the call-out fee, and get the visit on the calendar.
-			</p>
-		</div>
-		<div class="bpwh-service-lines" aria-label="Service lines">
-			<p>Residential replacements</p>
-			<p>Commercial water heaters</p>
-			<p>Tank and tankless estimates</p>
-			<p>Repair diagnostics</p>
+	<section class="bpwh-trust" aria-label="BP Water Heaters trust signals">
+		<div class="bpwh-public-wrap bpwh-trust__inner">
+			<div class="bpwh-trust__item bpwh-reveal">
+				<strong>12+</strong>
+				<span>Years serving NV/CA</span>
+				<small>Family-run since 2013</small>
+			</div>
+			<div class="bpwh-trust__item bpwh-reveal" data-delay="1">
+				<strong>0095421</strong>
+				<span>Nevada contractor license</span>
+				<small>C-1 plumbing, bonded and insured</small>
+			</div>
+			<div class="bpwh-trust__item bpwh-reveal" data-delay="2">
+				<strong>24h</strong>
+				<span>Average response</span>
+				<small>Most jobs scheduled same week</small>
+			</div>
+			<div class="bpwh-trust__item bpwh-reveal" data-delay="3">
+				<strong>$85</strong>
+				<span>Flat estimate fee</span>
+				<small>Credited toward approved work</small>
+			</div>
 		</div>
 	</section>
 
-	<section class="bpwh-section bpwh-section--booking" id="booking" aria-labelledby="booking-title">
-		<div class="bpwh-section__intro">
-			<p class="bpwh-kicker">$85 credited if you move forward</p>
-			<h2 id="booking-title">Book a one-hour estimate.</h2>
-			<p>
-				Available Monday through Friday, 9 AM to 5 PM. Each confirmed estimate includes a travel buffer
-				so the one-crew schedule stays realistic.
-			</p>
+	<section class="bpwh-public-section" id="services" aria-labelledby="services-title">
+		<div class="bpwh-public-wrap">
+			<div class="bpwh-public-section-head">
+				<div>
+					<p class="bpwh-public-eyebrow bpwh-reveal">What we do</p>
+					<h2 class="bpwh-reveal" data-delay="1" id="services-title">Water heater work - done once, done right.</h2>
+				</div>
+				<p class="bpwh-public-section-copy bpwh-reveal" data-delay="2">
+					Hot water is the whole job. BP Water Heaters focuses on estimates, diagnostics,
+					repairs, replacements, tank systems, and tankless installs for homes and businesses.
+				</p>
+			</div>
+			<div class="bpwh-services-grid">
+				<article class="bpwh-service-card bpwh-reveal">
+					<span>01</span>
+					<small>Diagnostic</small>
+					<h3>Estimates and diagnostics</h3>
+					<p>Written recommendations with the $85 call-out credited toward your repair or replacement.</p>
+				</article>
+				<article class="bpwh-service-card bpwh-reveal" data-delay="1">
+					<span>02</span>
+					<small>Same-week</small>
+					<h3>Repairs</h3>
+					<p>Pilot lights, thermostats, anode rods, valves, leaks, and no-hot-water calls.</p>
+				</article>
+				<article class="bpwh-service-card bpwh-reveal" data-delay="2">
+					<span>03</span>
+					<small>Tank</small>
+					<h3>Tank replacements</h3>
+					<p>Gas and electric tank water heaters, hauled away and installed to code.</p>
+				</article>
+				<article class="bpwh-service-card bpwh-reveal" data-delay="3">
+					<span>04</span>
+					<small>Tankless</small>
+					<h3>Tankless installs</h3>
+					<p>High-efficiency systems with the venting, gas sizing, and clearances handled correctly.</p>
+				</article>
+			</div>
 		</div>
-
-		<form class="bpwh-booking" id="bpwh-booking-form">
-			<div class="bpwh-booking__status" id="bpwh-booking-status" role="status" aria-live="polite"></div>
-			<label>
-				<span>Appointment slot</span>
-				<select name="preferred_start" required>
-					<option value="">Loading available times...</option>
-				</select>
-			</label>
-			<label>
-				<span>Name</span>
-				<input name="customer_name" autocomplete="name" required>
-			</label>
-			<label>
-				<span>Email</span>
-				<input name="email" type="email" autocomplete="email" required>
-			</label>
-			<label>
-				<span>Phone</span>
-				<input name="phone" autocomplete="tel" required>
-			</label>
-			<label class="bpwh-booking__wide">
-				<span>Service address</span>
-				<input name="property_address" autocomplete="street-address" required>
-			</label>
-			<label>
-				<span>City</span>
-				<input name="city" autocomplete="address-level2" required>
-			</label>
-			<label>
-				<span>County</span>
-				<input name="county" autocomplete="address-level1">
-			</label>
-			<label>
-				<span>State</span>
-				<select name="state" autocomplete="address-level1" required>
-					<option value="NV">Nevada</option>
-					<option value="CA">California</option>
-				</select>
-			</label>
-			<label>
-				<span>ZIP</span>
-				<input name="postal_code" autocomplete="postal-code" required>
-			</label>
-			<label class="bpwh-booking__wide">
-				<span>What is going on?</span>
-				<textarea name="notes" rows="4" placeholder="Tank size, leak, no hot water, commercial location, access notes..."></textarea>
-			</label>
-			<button class="bpwh-button bpwh-button--primary bpwh-booking__wide" type="submit">
-				Hold slot and pay $85
-			</button>
-		</form>
 	</section>
 
-	<section class="bpwh-section bpwh-section--contact" aria-labelledby="contact-title">
-		<div class="bpwh-section__intro">
-			<p class="bpwh-kicker">Need a different route?</p>
-			<h2 id="contact-title">Send a message instead.</h2>
-			<p>
-				Use this for commercial scopes, multi-unit properties, urgent questions, or anything that should
-				start as a conversation before booking.
-			</p>
+	<section class="bpwh-public-section bpwh-process" id="process" aria-labelledby="process-title">
+		<div class="bpwh-public-wrap">
+			<div class="bpwh-public-section-head">
+				<div>
+					<p class="bpwh-public-eyebrow bpwh-reveal">How it works</p>
+					<h2 class="bpwh-reveal" data-delay="1" id="process-title">A booking flow built for plumbing, not paperwork.</h2>
+				</div>
+				<p class="bpwh-public-section-copy bpwh-reveal" data-delay="2">
+					Pick a window, pay the estimate fee through secure checkout, and get a confirmation
+					for a licensed tech visit.
+				</p>
+			</div>
+			<div class="bpwh-steps">
+				<article class="bpwh-step bpwh-reveal">
+					<span>STEP / 01</span>
+					<h3>Book online</h3>
+					<p>Choose from the live appointment times loaded from BP scheduling.</p>
+				</article>
+				<article class="bpwh-step bpwh-reveal" data-delay="1">
+					<span>STEP / 02</span>
+					<h3>On-site estimate</h3>
+					<p>A licensed tech inspects, documents, and explains what is actually wrong.</p>
+				</article>
+				<article class="bpwh-step bpwh-reveal" data-delay="2">
+					<span>STEP / 03</span>
+					<h3>Approve in writing</h3>
+					<p>You get an itemized quote before repair or replacement work begins.</p>
+				</article>
+				<article class="bpwh-step bpwh-reveal" data-delay="3">
+					<span>STEP / 04</span>
+					<h3>Hot water, fast</h3>
+					<p>Repairs are handled same visit when possible; replacements are scheduled quickly.</p>
+				</article>
+			</div>
 		</div>
-		<form class="bpwh-contact" id="bpwh-contact-form">
-			<div class="bpwh-booking__status" id="bpwh-contact-status" role="status" aria-live="polite"></div>
-			<input name="full_name" placeholder="Name" autocomplete="name" required>
-			<input name="email" type="email" placeholder="Email" autocomplete="email" required>
-			<input name="phone" placeholder="Phone" autocomplete="tel" required>
-			<textarea name="message" rows="5" placeholder="How can BP Water Heaters help?" required></textarea>
-			<button class="bpwh-button bpwh-button--ghost" type="submit">Send message</button>
-		</form>
 	</section>
 
-	<section class="bpwh-section bpwh-section--portal" aria-labelledby="portal-title">
-		<div class="bpwh-section__intro">
-			<p class="bpwh-kicker">Customer portal</p>
-			<h2 id="portal-title">Open your job history.</h2>
-			<p>
-				Get a secure link for bookings, invoices, project status, files, and chat tied to your email address.
-			</p>
+	<section class="bpwh-public-section bpwh-booking-section" id="booking" aria-labelledby="booking-title">
+		<div class="bpwh-public-wrap bpwh-booking-layout">
+			<aside class="bpwh-booking-aside">
+				<p class="bpwh-public-eyebrow bpwh-reveal">Book online</p>
+				<h2 class="bpwh-reveal" data-delay="1" id="booking-title">Reserve a window. We'll text to confirm.</h2>
+				<p class="bpwh-public-lead bpwh-reveal" data-delay="2">
+					Choose an available one-hour estimate slot. Your $85 estimate fee is credited
+					toward approved repair or replacement work.
+				</p>
+				<div class="bpwh-price-card bpwh-reveal" data-delay="3">
+					<strong>$85<small> flat</small></strong>
+					<span>On-site estimate - Northern Nevada</span>
+					<p>Diagnosis, photos, and a written quote. Checkout is handled through Stripe.</p>
+				</div>
+				<ul class="bpwh-booking-bullets bpwh-reveal" data-delay="4">
+					<li>Licensed Nevada plumbing contractor, NV #0095421</li>
+					<li>Bonded and insured</li>
+					<li>Residential and commercial, tank and tankless</li>
+					<li>No hidden trip fees</li>
+				</ul>
+			</aside>
+
+			<div class="bpwh-booking-panel bpwh-reveal" data-delay="2">
+				<form class="bpwh-booking" id="bpwh-booking-form">
+					<div class="bpwh-booking__status" id="bpwh-booking-status" role="status" aria-live="polite"></div>
+
+					<div class="bpwh-form-step bpwh-booking__wide"><span>1</span> What do you need?</div>
+					<div class="bpwh-service-options bpwh-booking__wide" aria-label="Service type">
+						<label>
+							<input type="radio" name="service_type" value="Estimate" checked>
+							<span>Estimate / diagnosis</span>
+						</label>
+						<label>
+							<input type="radio" name="service_type" value="Repair">
+							<span>Repair existing heater</span>
+						</label>
+						<label>
+							<input type="radio" name="service_type" value="Replacement">
+							<span>Replace tank</span>
+						</label>
+						<label>
+							<input type="radio" name="service_type" value="Tankless">
+							<span>Tankless install</span>
+						</label>
+					</div>
+
+					<div class="bpwh-form-step bpwh-booking__wide"><span>2</span> Pick a window</div>
+					<label class="bpwh-booking__wide">
+						<span>Appointment slot</span>
+						<select name="preferred_start" required>
+							<option value="">Loading available times...</option>
+						</select>
+					</label>
+
+					<div class="bpwh-form-step bpwh-booking__wide"><span>3</span> Your details</div>
+					<label>
+						<span>Name</span>
+						<input name="customer_name" autocomplete="name" required>
+					</label>
+					<label>
+						<span>Email</span>
+						<input name="email" type="email" autocomplete="email" required>
+					</label>
+					<label>
+						<span>Phone</span>
+						<input name="phone" autocomplete="tel" required>
+					</label>
+					<label>
+						<span>City</span>
+						<input name="city" autocomplete="address-level2" required>
+					</label>
+					<label class="bpwh-booking__wide">
+						<span>Service address</span>
+						<input name="property_address" autocomplete="street-address" required>
+					</label>
+					<label>
+						<span>County</span>
+						<input name="county" autocomplete="address-level1">
+					</label>
+					<label>
+						<span>State</span>
+						<select name="state" autocomplete="address-level1" required>
+							<option value="NV">Nevada</option>
+							<option value="CA">California</option>
+						</select>
+					</label>
+					<label>
+						<span>ZIP</span>
+						<input name="postal_code" autocomplete="postal-code" required>
+					</label>
+					<label class="bpwh-booking__wide">
+						<span>What is going on?</span>
+						<textarea name="notes" rows="4" placeholder="Tank size, leak, no hot water, commercial location, access notes..."></textarea>
+					</label>
+					<button class="bpwh-public-btn bpwh-public-btn--primary bpwh-public-btn--block bpwh-booking__wide" type="submit">
+						Hold slot and pay $85
+					</button>
+					<p class="bpwh-booking-note bpwh-booking__wide">
+						Card secured by Stripe. BP Water Heaters will text confirmation after the hold is created.
+					</p>
+				</form>
+			</div>
 		</div>
-		<form class="bpwh-contact bpwh-contact--compact" id="bpwh-portal-form">
-			<div class="bpwh-booking__status" id="bpwh-portal-status" role="status" aria-live="polite"></div>
-			<input name="email" type="email" placeholder="Email" autocomplete="email" required>
-			<button class="bpwh-button bpwh-button--ghost" type="submit">Send secure link</button>
-		</form>
 	</section>
 
-	<section class="bpwh-section bpwh-section--chat" aria-labelledby="chat-title">
-		<div class="bpwh-section__intro">
-			<p class="bpwh-kicker">Live help</p>
-			<h2 id="chat-title">Start a chat.</h2>
-			<p>
-				Ask a water heater question or send job details. Messages stay with your BP Water Heaters record.
-			</p>
+	<section class="bpwh-public-section bpwh-coverage" id="coverage" aria-labelledby="coverage-title">
+		<div class="bpwh-public-wrap bpwh-coverage__layout">
+			<div>
+				<p class="bpwh-public-eyebrow bpwh-reveal">Where we work</p>
+				<h2 class="bpwh-reveal" data-delay="1" id="coverage-title">Northern Nevada and the eastern Sierra.</h2>
+				<p class="bpwh-public-lead bpwh-reveal" data-delay="2">
+					Routes start out of Reno daily. If you are outside this list, call and we will
+					tell you whether we can fit the job into the schedule.
+				</p>
+				<ul class="bpwh-coverage-list bpwh-reveal" data-delay="3">
+					<li><span>Reno</span><small>89501-89523</small></li>
+					<li><span>Sparks</span><small>89431-89441</small></li>
+					<li><span>Carson City</span><small>89701-89706</small></li>
+					<li><span>Dayton</span><small>89403</small></li>
+					<li><span>Incline Village</span><small>89451-89452</small></li>
+					<li><span>Minden / Gardnerville</span><small>89423</small></li>
+					<li><span>Fernley</span><small>89408</small></li>
+					<li><span>South Lake Tahoe</span><small>96150</small></li>
+					<li><span>Truckee</span><small>96161</small></li>
+				</ul>
+			</div>
+			<div class="bpwh-map-card bpwh-reveal" data-delay="2" aria-label="Service area map illustration">
+				<span class="bpwh-map-road bpwh-map-road--one"></span>
+				<span class="bpwh-map-road bpwh-map-road--two"></span>
+				<span class="bpwh-map-lake bpwh-map-lake--tahoe"></span>
+				<span class="bpwh-map-lake bpwh-map-lake--pyramid"></span>
+				<span class="bpwh-map-pin bpwh-map-pin--reno">Reno</span>
+				<span class="bpwh-map-pin bpwh-map-pin--sparks">Sparks</span>
+				<span class="bpwh-map-pin bpwh-map-pin--carson">Carson</span>
+				<span class="bpwh-map-pin bpwh-map-pin--tahoe">Tahoe</span>
+				<span class="bpwh-map-chip">Daily route area</span>
+			</div>
 		</div>
-		<form class="bpwh-contact" id="bpwh-chat-form">
-			<div class="bpwh-booking__status" id="bpwh-chat-status" role="status" aria-live="polite"></div>
-			<input name="full_name" placeholder="Name" autocomplete="name" required>
-			<input name="email" type="email" placeholder="Email" autocomplete="email" required>
-			<input name="phone" placeholder="Phone" autocomplete="tel">
-			<textarea name="message" rows="5" placeholder="What can BP Water Heaters help with?" required></textarea>
-			<button class="bpwh-button bpwh-button--primary" type="submit">Send chat</button>
-		</form>
 	</section>
+
+	<section class="bpwh-public-section bpwh-support" aria-labelledby="support-title">
+		<div class="bpwh-public-wrap">
+			<div class="bpwh-public-section-head">
+				<div>
+					<p class="bpwh-public-eyebrow bpwh-reveal">More ways in</p>
+					<h2 class="bpwh-reveal" data-delay="1" id="support-title">Message, portal, or chat.</h2>
+				</div>
+				<p class="bpwh-public-section-copy bpwh-reveal" data-delay="2">
+					Use these for commercial scopes, multi-unit properties, job history, invoices,
+					project status, files, or quick questions before booking.
+				</p>
+			</div>
+			<div class="bpwh-support-grid">
+				<section class="bpwh-support-card bpwh-reveal" aria-labelledby="contact-title">
+					<h3 id="contact-title">Send a message</h3>
+					<p>Best for commercial scopes, multi-unit properties, or questions that need context.</p>
+					<form class="bpwh-contact" id="bpwh-contact-form">
+						<div class="bpwh-booking__status" id="bpwh-contact-status" role="status" aria-live="polite"></div>
+						<input name="full_name" placeholder="Name" autocomplete="name" required>
+						<input name="email" type="email" placeholder="Email" autocomplete="email" required>
+						<input name="phone" placeholder="Phone" autocomplete="tel" required>
+						<textarea name="message" rows="5" placeholder="How can BP Water Heaters help?" required></textarea>
+						<button class="bpwh-public-btn bpwh-public-btn--ghost" type="submit">Send message</button>
+					</form>
+				</section>
+
+				<section class="bpwh-support-card bpwh-reveal" data-delay="1" aria-labelledby="portal-title">
+					<h3 id="portal-title">Open your job history</h3>
+					<p>Get a secure link for bookings, invoices, project status, files, and chat.</p>
+					<form class="bpwh-contact bpwh-contact--compact" id="bpwh-portal-form">
+						<div class="bpwh-booking__status" id="bpwh-portal-status" role="status" aria-live="polite"></div>
+						<input name="email" type="email" placeholder="Email" autocomplete="email" required>
+						<button class="bpwh-public-btn bpwh-public-btn--ghost" type="submit">Send secure link</button>
+					</form>
+				</section>
+
+				<section class="bpwh-support-card bpwh-reveal" data-delay="2" aria-labelledby="chat-title">
+					<h3 id="chat-title">Start a chat</h3>
+					<p>Ask a water heater question or send job details. Messages stay with your record.</p>
+					<form class="bpwh-contact" id="bpwh-chat-form">
+						<div class="bpwh-booking__status" id="bpwh-chat-status" role="status" aria-live="polite"></div>
+						<input name="full_name" placeholder="Name" autocomplete="name" required>
+						<input name="email" type="email" placeholder="Email" autocomplete="email" required>
+						<input name="phone" placeholder="Phone" autocomplete="tel">
+						<textarea name="message" rows="5" placeholder="What can BP Water Heaters help with?" required></textarea>
+						<button class="bpwh-public-btn bpwh-public-btn--primary" type="submit">Send chat</button>
+					</form>
+				</section>
+			</div>
+		</div>
+	</section>
+
+	<section class="bpwh-public-section bpwh-faq" id="faq" aria-labelledby="faq-title">
+		<div class="bpwh-public-wrap">
+			<div class="bpwh-public-section-head">
+				<div>
+					<p class="bpwh-public-eyebrow bpwh-reveal">Common questions</p>
+					<h2 class="bpwh-reveal" data-delay="1" id="faq-title">No-nonsense answers.</h2>
+				</div>
+				<p class="bpwh-public-section-copy bpwh-reveal" data-delay="2">
+					If something is not here, call or text (775) 815-9875.
+				</p>
+			</div>
+			<div class="bpwh-faq__list bpwh-reveal" data-bpwh-faq-list>
+				<section class="bpwh-faq__item is-open">
+					<button class="bpwh-faq__button" type="button" aria-expanded="true">How fast can you come out?</button>
+					<div class="bpwh-faq__panel">
+						<p>Most weeks have openings within 24-48 hours. The online booking form shows currently available estimate windows.</p>
+					</div>
+				</section>
+				<section class="bpwh-faq__item">
+					<button class="bpwh-faq__button" type="button" aria-expanded="false">Is the $85 fee credited?</button>
+					<div class="bpwh-faq__panel">
+						<p>Yes. If you approve BP Water Heaters for the repair or replacement, the full estimate fee is credited to the job.</p>
+					</div>
+				</section>
+				<section class="bpwh-faq__item">
+					<button class="bpwh-faq__button" type="button" aria-expanded="false">Do you work on tankless systems?</button>
+					<div class="bpwh-faq__panel">
+						<p>Yes. BP Water Heaters handles tank and tankless diagnostics, replacements, and install planning.</p>
+					</div>
+				</section>
+				<section class="bpwh-faq__item">
+					<button class="bpwh-faq__button" type="button" aria-expanded="false">Do you do commercial work?</button>
+					<div class="bpwh-faq__panel">
+						<p>Yes. Restaurants, light commercial, multi-unit, and property management jobs can start through the message form.</p>
+					</div>
+				</section>
+			</div>
+		</div>
+	</section>
+
+	<footer class="bpwh-public-footer">
+		<div class="bpwh-public-wrap bpwh-public-footer__inner">
+			<div>
+				<div class="bpwh-public-footer__brand">
+					<img src="/assets/bp_water_heaters/images/bp-logo.png" alt="">
+					<strong>BP Water Heaters</strong>
+				</div>
+				<a class="bpwh-public-footer__phone" href="tel:+17758159875">(775) 815-9875</a>
+				<p>Family-run water heater specialists serving Northern Nevada and the eastern Sierra since 2013.</p>
+			</div>
+			<nav aria-label="Footer services">
+				<h2>Services</h2>
+				<a href="#services">Estimates</a>
+				<a href="#services">Repairs</a>
+				<a href="#services">Tank replacements</a>
+				<a href="#services">Tankless installs</a>
+			</nav>
+			<nav aria-label="Footer company">
+				<h2>Company</h2>
+				<a href="#process">How it works</a>
+				<a href="#booking">Book online</a>
+				<a href="#coverage">Service area</a>
+				<a href="#faq">FAQ</a>
+			</nav>
+			<nav aria-label="Footer contact">
+				<h2>Contact</h2>
+				<a href="tel:+17758159875">(775) 815-9875</a>
+				<a href="mailto:hello@bpwaterheaters.com">hello@bpwaterheaters.com</a>
+				<span>Reno - Sparks - Carson</span>
+				<span>Mon-Fri, 9 AM-5 PM</span>
+			</nav>
+		</div>
+		<div class="bpwh-public-wrap bpwh-public-footer__bottom">
+			<span>BP Water Heaters, LLC</span>
+			<span>NV State Contractors Lic. #0095421 - C-1 plumbing - Bonded and insured</span>
+		</div>
+	</footer>
 </main>
 <script src="/assets/bp_water_heaters/js/bpwh_booking.js"></script>
 {% endif %}
