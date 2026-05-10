@@ -26,6 +26,8 @@ def test_public_site_uses_launch_handoff_design_markers():
 	assert "Hot water," in template
 	assert "handled" in template
 	assert "NV LIC #0095421" in template
+	assert "C-31" in template
+	assert "C-1 plumbing" not in template
 	assert 'class="nav' in template
 	assert 'class="hero' in template
 	assert 'class="trust' in template
