@@ -59,4 +59,5 @@ def test_junk_probe_page_sets_clean_404_response():
 	page.get_context(context)
 
 	assert fake_frappe.local.response["http_status_code"] == 404
+	assert context.http_status_code == 404
 	assert context.title == "Not Found"
