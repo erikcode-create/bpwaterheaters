@@ -28,6 +28,9 @@ def test_public_site_uses_launch_handoff_design_markers():
 	assert "NV LIC #0095421" in template
 	assert "BP Water Heaters, LLC" not in template
 	assert "BP Water Heaters LLC" not in template
+	assert "same week" not in template.lower()
+	assert "same-week" not in template.lower()
+	assert "usually" not in template.lower()
 	assert "C-31" in template
 	assert "C-1 plumbing" not in template
 	assert 'class="nav' in template
