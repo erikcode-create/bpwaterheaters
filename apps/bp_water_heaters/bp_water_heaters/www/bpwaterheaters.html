@@ -5,468 +5,545 @@
 {% block head_include %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/bp_water_heaters/css/bpwh.css">
+{% if not is_portal_root %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="/assets/bp_water_heaters/css/bpwh_design.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 <script src="/assets/bp_water_heaters/js/bpwh_public.js" defer></script>
+{% endif %}
 {% endblock %}
 
 {% block page_content %}
 {% if is_portal_root %}
 {% include "bp_water_heaters/templates/includes/bpwh_portal_content.html" %}
 {% else %}
-<main class="bpwh-public" id="top">
-	<nav class="bpwh-public-nav" data-bpwh-public-nav aria-label="BP Water Heaters">
-		<div class="bpwh-public-wrap bpwh-public-nav__inner">
-			<a class="bpwh-public-brand" href="#top" aria-label="BP Water Heaters home">
-				<span class="bpwh-public-logo">
-					<img src="/assets/bp_water_heaters/images/bp-logo.png" alt="">
-				</span>
-				<span class="bpwh-public-brand__copy">
-					<span>BP Water Heaters</span>
+<main id="top">
+	<nav class="nav" data-bpwh-public-nav aria-label="BP Water Heaters">
+		<div class="nav__inner">
+			<a href="#top" class="nav__brand">
+				<div class="nav__logo"><img src="/assets/bp_water_heaters/images/bp-logo.png" alt="BP Water Heaters logo"></div>
+				<div class="nav__name">
+					BP Water Heaters
 					<small>NV LIC #0095421</small>
-				</span>
+				</div>
 			</a>
-			<div class="bpwh-public-nav__links" aria-label="Page sections">
+			<div class="nav__links">
 				<a href="#services">Services</a>
 				<a href="#process">How it works</a>
 				<a href="#booking">Book</a>
 				<a href="#coverage">Service area</a>
 				<a href="#faq">FAQ</a>
 			</div>
-			<div class="bpwh-public-nav__actions">
-				<a class="bpwh-public-phone" href="tel:+17758159875">
-					<span class="bpwh-public-pulse" aria-hidden="true"></span>
+			<div class="nav__cta">
+				<a class="nav__phone" href="tel:+17758159875">
+					<span class="pulse"></span>
 					(775) 815-9875
 				</a>
-				<a class="bpwh-public-btn bpwh-public-btn--primary" href="#booking">Book estimate</a>
+				<a class="btn btn--primary" href="#booking">Book estimate <span class="arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 5l7 7-7 7"></path></svg></span></a>
 			</div>
 		</div>
 	</nav>
 
-	<section class="bpwh-public-hero" aria-labelledby="bpwh-title">
-		<div class="bpwh-public-hero__bg" aria-hidden="true"></div>
-		<div class="bpwh-public-hero__grid" aria-hidden="true"></div>
-		<div class="bpwh-public-wrap bpwh-public-hero__inner">
-			<div class="bpwh-public-hero__copy">
-				<p class="bpwh-public-eyebrow bpwh-reveal">Northern Nevada - Reno, Sparks, Carson, Tahoe</p>
-				<h1 class="bpwh-reveal" data-delay="1" id="bpwh-title">
-					Hot water, handled <span>same week.</span>
-				</h1>
-				<p class="bpwh-public-lead bpwh-reveal" data-delay="2">
-					Licensed, insured water heater specialists for estimates, repairs, replacements,
-					tank and tankless systems across Northern Nevada and the eastern Sierra.
-				</p>
-				<div class="bpwh-public-hero__cta bpwh-reveal" data-delay="3" aria-label="Primary actions">
-					<a class="bpwh-public-btn bpwh-public-btn--primary bpwh-public-btn--large" href="#booking">Book an $85 estimate</a>
-					<a class="bpwh-public-btn bpwh-public-btn--ghost bpwh-public-btn--large" href="tel:+17758159875">Call (775) 815-9875</a>
-					<span class="bpwh-public-price-chip">
-						<strong>$85</strong>
-						<span>credited to approved work</span>
-					</span>
-				</div>
-			</div>
-
-			<aside class="bpwh-public-live-card bpwh-reveal" data-delay="4" aria-label="Booking highlights">
-				<p class="bpwh-public-card-label">Online booking</p>
-				<h2>Reserve a real service window.</h2>
-				<div class="bpwh-public-heater" aria-hidden="true">
-					<div class="bpwh-public-heater__tank"></div>
-					<div class="bpwh-public-heater__pipe bpwh-public-heater__pipe--left"></div>
-					<div class="bpwh-public-heater__pipe bpwh-public-heater__pipe--right"></div>
-					<div class="bpwh-public-heater__gauge"></div>
-					<span class="bpwh-public-drop bpwh-public-drop--one"></span>
-					<span class="bpwh-public-drop bpwh-public-drop--two"></span>
-					<span class="bpwh-public-drop bpwh-public-drop--three"></span>
-				</div>
-				<dl class="bpwh-public-card-list">
-					<div>
-						<dt>Estimate fee</dt>
-						<dd>$85 flat</dd>
-					</div>
-					<div>
-						<dt>Checkout</dt>
-						<dd>Stripe secured</dd>
-					</div>
-					<div>
-						<dt>Schedule</dt>
-						<dd>Mon-Fri, 9 AM-5 PM</dd>
-					</div>
-				</dl>
-				<a class="bpwh-public-btn bpwh-public-btn--ember bpwh-public-btn--block" href="#booking">Reserve a slot</a>
-			</aside>
-		</div>
-	</section>
-
-	<section class="bpwh-trust" aria-label="BP Water Heaters trust signals">
-		<div class="bpwh-public-wrap bpwh-trust__inner">
-			<div class="bpwh-trust__item bpwh-reveal">
-				<strong>12+</strong>
-				<span>Years serving NV/CA</span>
-				<small>Family-run since 2013</small>
-			</div>
-			<div class="bpwh-trust__item bpwh-reveal" data-delay="1">
-				<strong>0095421</strong>
-				<span>Nevada contractor license</span>
-				<small>C-1 plumbing, bonded and insured</small>
-			</div>
-			<div class="bpwh-trust__item bpwh-reveal" data-delay="2">
-				<strong>24h</strong>
-				<span>Average response</span>
-				<small>Most jobs scheduled same week</small>
-			</div>
-			<div class="bpwh-trust__item bpwh-reveal" data-delay="3">
-				<strong>$85</strong>
-				<span>Flat estimate fee</span>
-				<small>Credited toward approved work</small>
-			</div>
-		</div>
-	</section>
-
-	<section class="bpwh-public-section" id="services" aria-labelledby="services-title">
-		<div class="bpwh-public-wrap">
-			<div class="bpwh-public-section-head">
-				<div>
-					<p class="bpwh-public-eyebrow bpwh-reveal">What we do</p>
-					<h2 class="bpwh-reveal" data-delay="1" id="services-title">Water heater work - done once, done right.</h2>
-				</div>
-				<p class="bpwh-public-section-copy bpwh-reveal" data-delay="2">
-					Hot water is the whole job. BP Water Heaters focuses on estimates, diagnostics,
-					repairs, replacements, tank systems, and tankless installs for homes and businesses.
-				</p>
-			</div>
-			<div class="bpwh-services-grid">
-				<article class="bpwh-service-card bpwh-reveal">
-					<span>01</span>
-					<small>Diagnostic</small>
-					<h3>Estimates and diagnostics</h3>
-					<p>Written recommendations with the $85 call-out credited toward your repair or replacement.</p>
-				</article>
-				<article class="bpwh-service-card bpwh-reveal" data-delay="1">
-					<span>02</span>
-					<small>Same-week</small>
-					<h3>Repairs</h3>
-					<p>Pilot lights, thermostats, anode rods, valves, leaks, and no-hot-water calls.</p>
-				</article>
-				<article class="bpwh-service-card bpwh-reveal" data-delay="2">
-					<span>03</span>
-					<small>Tank</small>
-					<h3>Tank replacements</h3>
-					<p>Gas and electric tank water heaters, hauled away and installed to code.</p>
-				</article>
-				<article class="bpwh-service-card bpwh-reveal" data-delay="3">
-					<span>04</span>
-					<small>Tankless</small>
-					<h3>Tankless installs</h3>
-					<p>High-efficiency systems with the venting, gas sizing, and clearances handled correctly.</p>
-				</article>
-			</div>
-		</div>
-	</section>
-
-	<section class="bpwh-public-section bpwh-process" id="process" aria-labelledby="process-title">
-		<div class="bpwh-public-wrap">
-			<div class="bpwh-public-section-head">
-				<div>
-					<p class="bpwh-public-eyebrow bpwh-reveal">How it works</p>
-					<h2 class="bpwh-reveal" data-delay="1" id="process-title">A booking flow built for plumbing, not paperwork.</h2>
-				</div>
-				<p class="bpwh-public-section-copy bpwh-reveal" data-delay="2">
-					Pick a window, pay the estimate fee through secure checkout, and get a confirmation
-					for a licensed tech visit.
-				</p>
-			</div>
-			<div class="bpwh-steps">
-				<article class="bpwh-step bpwh-reveal">
-					<span>STEP / 01</span>
-					<h3>Book online</h3>
-					<p>Choose from the live appointment times loaded from BP scheduling.</p>
-				</article>
-				<article class="bpwh-step bpwh-reveal" data-delay="1">
-					<span>STEP / 02</span>
-					<h3>On-site estimate</h3>
-					<p>A licensed tech inspects, documents, and explains what is actually wrong.</p>
-				</article>
-				<article class="bpwh-step bpwh-reveal" data-delay="2">
-					<span>STEP / 03</span>
-					<h3>Approve in writing</h3>
-					<p>You get an itemized quote before repair or replacement work begins.</p>
-				</article>
-				<article class="bpwh-step bpwh-reveal" data-delay="3">
-					<span>STEP / 04</span>
-					<h3>Hot water, fast</h3>
-					<p>Repairs are handled same visit when possible; replacements are scheduled quickly.</p>
-				</article>
-			</div>
-		</div>
-	</section>
-
-	<section class="bpwh-public-section bpwh-booking-section" id="booking" aria-labelledby="booking-title">
-		<div class="bpwh-public-wrap bpwh-booking-layout">
-			<aside class="bpwh-booking-aside">
-				<p class="bpwh-public-eyebrow bpwh-reveal">Book online</p>
-				<h2 class="bpwh-reveal" data-delay="1" id="booking-title">Reserve a window. We'll text to confirm.</h2>
-				<p class="bpwh-public-lead bpwh-reveal" data-delay="2">
-					Choose an available one-hour estimate slot. Your $85 estimate fee is credited
-					toward approved repair or replacement work.
-				</p>
-				<div class="bpwh-price-card bpwh-reveal" data-delay="3">
-					<strong>$85<small> flat</small></strong>
-					<span>On-site estimate - Northern Nevada</span>
-					<p>Diagnosis, photos, and a written quote. Checkout is handled through Stripe.</p>
-				</div>
-				<ul class="bpwh-booking-bullets bpwh-reveal" data-delay="4">
-					<li>Licensed Nevada plumbing contractor, NV #0095421</li>
-					<li>Bonded and insured</li>
-					<li>Residential and commercial, tank and tankless</li>
-					<li>No hidden trip fees</li>
-				</ul>
-			</aside>
-
-			<div class="bpwh-booking-panel bpwh-reveal" data-delay="2">
-				<form class="bpwh-booking" id="bpwh-booking-form">
-					<div class="bpwh-booking__status" id="bpwh-booking-status" role="status" aria-live="polite"></div>
-
-					<div class="bpwh-form-step bpwh-booking__wide"><span>1</span> What do you need?</div>
-					<div class="bpwh-service-options bpwh-booking__wide" aria-label="Service type">
-						<label>
-							<input type="radio" name="service_type" value="Estimate" checked>
-							<span>Estimate / diagnosis</span>
-						</label>
-						<label>
-							<input type="radio" name="service_type" value="Repair">
-							<span>Repair existing heater</span>
-						</label>
-						<label>
-							<input type="radio" name="service_type" value="Replacement">
-							<span>Replace tank</span>
-						</label>
-						<label>
-							<input type="radio" name="service_type" value="Tankless">
-							<span>Tankless install</span>
-						</label>
-					</div>
-
-					<div class="bpwh-form-step bpwh-booking__wide"><span>2</span> Pick a window</div>
-					<label class="bpwh-booking__wide">
-						<span>Appointment slot</span>
-						<select name="preferred_start" required>
-							<option value="">Loading available times...</option>
-						</select>
-					</label>
-
-					<div class="bpwh-form-step bpwh-booking__wide"><span>3</span> Your details</div>
-					<label>
-						<span>Name</span>
-						<input name="customer_name" autocomplete="name" required>
-					</label>
-					<label>
-						<span>Email</span>
-						<input name="email" type="email" autocomplete="email" required>
-					</label>
-					<label>
-						<span>Phone</span>
-						<input name="phone" autocomplete="tel" required>
-					</label>
-					<label>
-						<span>City</span>
-						<input name="city" autocomplete="address-level2" required>
-					</label>
-					<label class="bpwh-booking__wide">
-						<span>Service address</span>
-						<input name="property_address" autocomplete="street-address" required>
-					</label>
-					<label>
-						<span>County</span>
-						<input name="county" autocomplete="address-level1">
-					</label>
-					<label>
-						<span>State</span>
-						<select name="state" autocomplete="address-level1" required>
-							<option value="NV">Nevada</option>
-							<option value="CA">California</option>
-						</select>
-					</label>
-					<label>
-						<span>ZIP</span>
-						<input name="postal_code" autocomplete="postal-code" required>
-					</label>
-					<label class="bpwh-booking__wide">
-						<span>What is going on?</span>
-						<textarea name="notes" rows="4" placeholder="Tank size, leak, no hot water, commercial location, access notes..."></textarea>
-					</label>
-					<button class="bpwh-public-btn bpwh-public-btn--primary bpwh-public-btn--block bpwh-booking__wide" type="submit">
-						Hold slot and pay $85
-					</button>
-					<p class="bpwh-booking-note bpwh-booking__wide">
-						Card secured by Stripe. BP Water Heaters will text confirmation after the hold is created.
+	<section class="hero" aria-labelledby="bpwh-title">
+		<div class="hero__bg"></div>
+		<div class="hero__shimmer"></div>
+		<div class="hero__grid"></div>
+		<div class="wrap">
+			<div class="hero__inner">
+				<div class="hero__copy">
+					<div class="eyebrow reveal">Northern Nevada &middot; Reno &middot; Sparks &middot; Carson &middot; Tahoe</div>
+					<h1 class="reveal" data-delay="1" id="bpwh-title">
+						Hot water,
+						<br>
+						<span class="underline">handled</span> &mdash; usually <span class="stamp">same week</span>
+					</h1>
+					<p class="lead reveal" data-delay="2" style="margin-top: 28px;">
+						Licensed, insured water heater specialists. Estimates, repairs, replacements,
+						tank and tankless &mdash; for homes and businesses across Northern Nevada and the
+						eastern Sierra.
 					</p>
-				</form>
-			</div>
-		</div>
-	</section>
-
-	<section class="bpwh-public-section bpwh-coverage" id="coverage" aria-labelledby="coverage-title">
-		<div class="bpwh-public-wrap bpwh-coverage__layout">
-			<div>
-				<p class="bpwh-public-eyebrow bpwh-reveal">Where we work</p>
-				<h2 class="bpwh-reveal" data-delay="1" id="coverage-title">Northern Nevada and the eastern Sierra.</h2>
-				<p class="bpwh-public-lead bpwh-reveal" data-delay="2">
-					Routes start out of Reno daily. If you are outside this list, call and we will
-					tell you whether we can fit the job into the schedule.
-				</p>
-				<ul class="bpwh-coverage-list bpwh-reveal" data-delay="3">
-					<li><span>Reno</span><small>89501-89523</small></li>
-					<li><span>Sparks</span><small>89431-89441</small></li>
-					<li><span>Carson City</span><small>89701-89706</small></li>
-					<li><span>Dayton</span><small>89403</small></li>
-					<li><span>Incline Village</span><small>89451-89452</small></li>
-					<li><span>Minden / Gardnerville</span><small>89423</small></li>
-					<li><span>Fernley</span><small>89408</small></li>
-					<li><span>South Lake Tahoe</span><small>96150</small></li>
-					<li><span>Truckee</span><small>96161</small></li>
-				</ul>
-			</div>
-			<div class="bpwh-map-card bpwh-reveal" data-delay="2" aria-label="Service area map illustration">
-				<span class="bpwh-map-road bpwh-map-road--one"></span>
-				<span class="bpwh-map-road bpwh-map-road--two"></span>
-				<span class="bpwh-map-lake bpwh-map-lake--tahoe"></span>
-				<span class="bpwh-map-lake bpwh-map-lake--pyramid"></span>
-				<span class="bpwh-map-pin bpwh-map-pin--reno">Reno</span>
-				<span class="bpwh-map-pin bpwh-map-pin--sparks">Sparks</span>
-				<span class="bpwh-map-pin bpwh-map-pin--carson">Carson</span>
-				<span class="bpwh-map-pin bpwh-map-pin--tahoe">Tahoe</span>
-				<span class="bpwh-map-chip">Daily route area</span>
-			</div>
-		</div>
-	</section>
-
-	<section class="bpwh-public-section bpwh-support" aria-labelledby="support-title">
-		<div class="bpwh-public-wrap">
-			<div class="bpwh-public-section-head">
-				<div>
-					<p class="bpwh-public-eyebrow bpwh-reveal">More ways in</p>
-					<h2 class="bpwh-reveal" data-delay="1" id="support-title">Message, portal, or chat.</h2>
+					<div class="hero__meta reveal" data-delay="3">
+						<a class="btn btn--primary btn--lg" href="#booking">Book an $85 estimate <span class="arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 5l7 7-7 7"></path></svg></span></a>
+						<a class="btn btn--ghost btn--lg" href="tel:+17758159875"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.7 2.81a2 2 0 0 1-.45 2.11L8 10a16 16 0 0 0 6 6l1.36-1.36a2 2 0 0 1 2.11-.45c.91.33 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"></path></svg> (775) 815-9875</a>
+						<div class="price-chip" title="Diagnostic call-out fee">
+							<span class="num">$85</span>
+							<span class="lbl">callout - credited to job</span>
+						</div>
+					</div>
 				</div>
-				<p class="bpwh-public-section-copy bpwh-reveal" data-delay="2">
+
+				<aside class="hero__card reveal" data-delay="4" aria-label="Live availability">
+					<div class="label">Live availability</div>
+					<h3>Earliest opening</h3>
+					<div class="heater-vis" aria-hidden="true">
+						<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid meet">
+							<defs>
+								<linearGradient id="tankG" x1="0" x2="0" y1="0" y2="1">
+									<stop offset="0%" stop-color="rgba(255,255,255,0.18)"></stop>
+									<stop offset="100%" stop-color="rgba(255,255,255,0.04)"></stop>
+								</linearGradient>
+							</defs>
+							<rect x="118" y="30" width="84" height="130" rx="14" fill="url(#tankG)" stroke="rgba(255,255,255,0.18)"></rect>
+							<line x1="118" y1="74" x2="202" y2="74" stroke="rgba(255,255,255,0.20)" stroke-dasharray="3 4"></line>
+							<path d="M138 30 V14 H110 V30" stroke="rgba(255,255,255,0.30)" fill="none"></path>
+							<path d="M182 30 V14 H210 V30" stroke="rgba(255,255,255,0.30)" fill="none"></path>
+							<rect x="110" y="160" width="100" height="6" rx="2" fill="rgba(255,255,255,0.18)"></rect>
+							<circle cx="160" cy="118" r="10" stroke="oklch(0.78 0.16 45)" fill="none"></circle>
+							<line x1="160" y1="118" x2="166" y2="113" stroke="oklch(0.78 0.16 45)"></line>
+						</svg>
+						<div class="glow"></div>
+						<div class="drop" style="left: 26%; animation-delay: 0s;"></div>
+						<div class="drop" style="left: 74%; animation-delay: 1.1s;"></div>
+						<div class="drop" style="left: 50%; animation-delay: 2.2s;"></div>
+					</div>
+					<div class="row">
+						<span class="k">Next opening</span>
+						<span class="v">Loaded live below</span>
+					</div>
+					<div class="row">
+						<span class="k">Service area</span>
+						<span class="v">Reno / Sparks</span>
+					</div>
+					<div class="row">
+						<span class="k">Checkout</span>
+						<span class="v">Stripe secured</span>
+					</div>
+					<a class="btn btn--ember btn--block" href="#booking" style="margin-top: 18px;">Reserve this slot <span class="arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M13 5l7 7-7 7"></path></svg></span></a>
+				</aside>
+			</div>
+		</div>
+	</section>
+
+	<section class="trust" aria-label="BP Water Heaters trust signals">
+		<div class="wrap">
+			<div class="trust__inner">
+				<div class="trust__item reveal">
+					<span class="num">12+</span>
+					<span class="lbl">Years in NV/CA</span>
+					<span class="sub">Family-run since 2013</span>
+				</div>
+				<div class="trust__item reveal" data-delay="1">
+					<span class="num mono" style="font-size: 20px; letter-spacing: 0.06em;">0095421</span>
+					<span class="lbl">NV Contractors Lic.</span>
+					<span class="sub">C-1 plumbing, bonded and insured</span>
+				</div>
+				<div class="trust__item reveal" data-delay="2">
+					<span class="num">24h</span>
+					<span class="lbl">Avg. response</span>
+					<span class="sub">Most jobs scheduled same week</span>
+				</div>
+				<div class="trust__item reveal" data-delay="3">
+					<span class="num">$85</span>
+					<span class="lbl">Flat estimate fee</span>
+					<span class="sub">Credited toward approved work</span>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section" id="services" aria-labelledby="services-title">
+		<div class="wrap">
+			<div class="section-head">
+				<div class="section-head__title">
+					<div class="eyebrow reveal">What we do</div>
+					<h2 class="reveal" data-delay="1" id="services-title">Water heater work &mdash; done once, done right.</h2>
+				</div>
+				<p class="section-head__sub reveal" data-delay="2">
+					We don't reroute kitchens or remodel bathrooms. Hot water is the entire job.
+					That focus is why insurance adjusters, property managers and homeowners across
+					Reno, Sparks, Carson and Tahoe call us first.
+				</p>
+			</div>
+			<div class="services-grid">
+				<article class="svc reveal">
+					<div class="svc__num">01</div>
+					<div class="svc__tag">Diagnostic</div>
+					<div class="svc__icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"></path><path d="M12 18v3"></path><path d="M3 12h3"></path><path d="M18 12h3"></path><path d="M5.6 5.6l2.1 2.1"></path><path d="M16.3 16.3l2.1 2.1"></path><path d="M5.6 18.4l2.1-2.1"></path><path d="M16.3 7.7l2.1-2.1"></path></svg></div>
+					<div>
+						<h3>Estimates &amp; diagnostics</h3>
+						<p class="svc__desc" style="margin-top: 8px;">Honest, written estimates with the $85 call-out credited toward your repair or replacement.</p>
+					</div>
+				</article>
+				<article class="svc reveal" data-delay="1">
+					<div class="svc__num">02</div>
+					<div class="svc__tag">Same-week</div>
+					<div class="svc__icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5 5l-1.7-1.7a2 2 0 0 1 2.8-2.8l3.2 3.2a6 6 0 0 1-7.8 7.8l-7.7 7.7a2.8 2.8 0 0 1-4-4l7.7-7.7a6 6 0 0 1 7.8-7.8l-3.2 3.2a2 2 0 1 1-2.8-2.8L16 1.5"></path></svg></div>
+					<div>
+						<h3>Repairs</h3>
+						<p class="svc__desc" style="margin-top: 8px;">Pilot lights, thermostats, anode rods, T&amp;P valves, leaks &mdash; most repairs done in one visit.</p>
+					</div>
+				</article>
+				<article class="svc reveal" data-delay="2">
+					<div class="svc__num">03</div>
+					<div class="svc__tag">Tank</div>
+					<div class="svc__icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="3"></rect><path d="M9 7h6"></path><path d="M9 11h6"></path><path d="M10 21v-2"></path><path d="M14 21v-2"></path></svg></div>
+					<div>
+						<h3>Replacements</h3>
+						<p class="svc__desc" style="margin-top: 8px;">Gas &amp; electric tank water heaters, hauled-away and code-compliant install with permit.</p>
+					</div>
+				</article>
+				<article class="svc reveal" data-delay="3">
+					<div class="svc__num">04</div>
+					<div class="svc__tag">Tankless</div>
+					<div class="svc__icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="12" rx="2"></rect><path d="M8 10h.01"></path><path d="M8 14h.01"></path><path d="M12 10h4"></path><path d="M12 14h4"></path><path d="M2 12h2"></path><path d="M20 12h2"></path></svg></div>
+					<div>
+						<h3>Tankless installs</h3>
+						<p class="svc__desc" style="margin-top: 8px;">High-efficiency Rinnai, Navien &amp; Rheem &mdash; endless hot water with proper venting and gas sizing.</p>
+					</div>
+				</article>
+			</div>
+		</div>
+	</section>
+
+	<section class="section process" id="process" aria-labelledby="process-title">
+		<div class="wrap">
+			<div class="section-head">
+				<div class="section-head__title">
+					<div class="eyebrow reveal">How it works</div>
+					<h2 class="reveal" data-delay="1" id="process-title">A booking flow built for plumbing, not paperwork.</h2>
+				</div>
+				<p class="lead reveal" data-delay="2">
+					No phone tag. Pick a window, get a confirmation text, and meet a uniformed tech
+					who shows up when promised.
+				</p>
+			</div>
+			<div class="steps">
+				<div class="step reveal">
+					<div class="step__num">STEP / 01</div>
+					<h3>Book online</h3>
+					<p class="step__desc">Choose from live appointment windows loaded from BP scheduling.</p>
+					<div class="step__bar"></div>
+				</div>
+				<div class="step reveal" data-delay="1">
+					<div class="step__num">STEP / 02</div>
+					<h3>On-site estimate</h3>
+					<p class="step__desc">A licensed tech inspects, documents, and explains what is wrong. $85 flat.</p>
+					<div class="step__bar"></div>
+				</div>
+				<div class="step reveal" data-delay="2">
+					<div class="step__num">STEP / 03</div>
+					<h3>Approve in writing</h3>
+					<p class="step__desc">Itemized quote sent to your phone before repair or replacement work begins.</p>
+					<div class="step__bar"></div>
+				</div>
+				<div class="step reveal" data-delay="3">
+					<div class="step__num">STEP / 04</div>
+					<h3>Hot water, fast</h3>
+					<p class="step__desc">Repairs same visit when possible; replacements are scheduled quickly.</p>
+					<div class="step__bar"></div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section booking" id="booking" aria-labelledby="booking-title">
+		<div class="wrap">
+			<div class="booking__layout">
+				<aside class="booking__aside">
+					<div class="eyebrow reveal">Book online</div>
+					<h2 class="reveal" data-delay="1" id="booking-title">Reserve a window. We'll text to confirm.</h2>
+					<p class="lead reveal" data-delay="2" style="margin-top: 14px;">
+						Pick an available one-hour estimate slot. Your $85 estimate is credited toward
+						the repair or replacement if you move forward.
+					</p>
+					<div class="price-card reveal" data-delay="3">
+						<div class="num">$85<small>flat</small></div>
+						<div class="lbl">On-site estimate - Northern Nevada</div>
+						<p>Diagnosis, photos, and written quote. Stripe-secured checkout, no hidden trip fees.</p>
+					</div>
+					<ul class="booking__bullets reveal" data-delay="4">
+						<li><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg></span> Licensed Nevada plumbing contractor (NV #0095421)</li>
+						<li><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg></span> Bonded and insured</li>
+						<li><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg></span> Stripe-secured checkout</li>
+						<li><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"></path></svg></span> Residential and commercial - tank and tankless</li>
+					</ul>
+				</aside>
+
+				<div class="booking__panel reveal" data-delay="2">
+					<form id="bpwh-booking-form" novalidate>
+						<div class="booking__step"><span class="pip">1</span> What do you need?</div>
+						<div class="svc-pick" style="margin-bottom: 22px;">
+							<label class="svc-pick__opt">
+								<input type="radio" name="service_type" value="Estimate" checked>
+								<span class="dot"></span>
+								Estimate / diagnosis
+							</label>
+							<label class="svc-pick__opt">
+								<input type="radio" name="service_type" value="Repair">
+								<span class="dot"></span>
+								Repair existing heater
+							</label>
+							<label class="svc-pick__opt">
+								<input type="radio" name="service_type" value="Replacement">
+								<span class="dot"></span>
+								Replace tank
+							</label>
+							<label class="svc-pick__opt">
+								<input type="radio" name="service_type" value="Tankless">
+								<span class="dot"></span>
+								Tankless install
+							</label>
+						</div>
+
+						<div class="booking__step"><span class="pip">2</span> Pick a window</div>
+						<div class="field field--full">
+							<label for="bpwh-preferred-start">Appointment slot</label>
+							<select id="bpwh-preferred-start" name="preferred_start" required>
+								<option value="">Loading available times...</option>
+							</select>
+							<div class="slots" id="bpwh-slot-buttons" aria-label="Available appointment slots"></div>
+						</div>
+						<div class="bpwh-booking__status field--full" id="bpwh-booking-status" role="status" aria-live="polite"></div>
+
+						<div class="booking__step" style="margin-top: 30px;"><span class="pip">3</span> Your details</div>
+						<div class="field-grid">
+							<div class="field">
+								<label for="bpwh-customer-name">Full name</label>
+								<input id="bpwh-customer-name" name="customer_name" autocomplete="name" required>
+							</div>
+							<div class="field">
+								<label for="bpwh-phone">Phone</label>
+								<input id="bpwh-phone" name="phone" autocomplete="tel" required>
+							</div>
+							<div class="field field--full">
+								<label for="bpwh-email">Email (for confirmation and receipt)</label>
+								<input id="bpwh-email" name="email" type="email" autocomplete="email" required>
+							</div>
+							<div class="field field--full">
+								<label for="bpwh-property-address">Service address</label>
+								<input id="bpwh-property-address" name="property_address" autocomplete="street-address" required>
+							</div>
+							<div class="field">
+								<label for="bpwh-city">City</label>
+								<input id="bpwh-city" name="city" autocomplete="address-level2" required>
+							</div>
+							<div class="field">
+								<label for="bpwh-county">County</label>
+								<input id="bpwh-county" name="county" autocomplete="address-level1">
+							</div>
+							<div class="field">
+								<label for="bpwh-state">State</label>
+								<select id="bpwh-state" name="state" autocomplete="address-level1" required>
+									<option value="NV">Nevada</option>
+									<option value="CA">California</option>
+								</select>
+							</div>
+							<div class="field">
+								<label for="bpwh-postal-code">ZIP</label>
+								<input id="bpwh-postal-code" name="postal_code" autocomplete="postal-code" required>
+							</div>
+							<div class="field field--full">
+								<label for="bpwh-notes">Notes</label>
+								<textarea id="bpwh-notes" name="notes" rows="3" placeholder="Tank size, leak, no hot water, commercial location, access notes..."></textarea>
+							</div>
+						</div>
+
+						<button id="submit-booking" type="submit" class="btn btn--primary btn--lg btn--block" data-default-text="Continue to checkout - $85" style="margin-top: 26px;">
+							Continue to checkout - $85 <span class="arrow" aria-hidden="true">-></span>
+						</button>
+
+						<p style="margin-top: 16px; font-size: 12.5px; color: var(--ink-mute); text-align: center;">
+							Card secured by Stripe. BP Water Heaters will text confirmation after the hold is created.
+						</p>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section coverage" id="coverage" aria-labelledby="coverage-title">
+		<div class="wrap">
+			<div class="coverage__layout">
+				<div>
+					<div class="eyebrow reveal">Where we work</div>
+					<h2 class="reveal" data-delay="1" style="margin-top: 14px;" id="coverage-title">Northern Nevada and the eastern Sierra.</h2>
+					<p class="lead reveal" data-delay="2" style="margin-top: 18px;">
+						Our trucks route out of Reno daily. If you are outside the list,
+						call - we cover most of the Truckee Meadows, Carson Valley, and north Tahoe basin.
+					</p>
+					<ul class="coverage__list reveal" data-delay="3">
+						<li><span>Reno</span><small>89501-89523</small></li>
+						<li><span>Sparks</span><small>89431-89441</small></li>
+						<li><span>Carson City</span><small>89701-89706</small></li>
+						<li><span>Dayton</span><small>89403</small></li>
+						<li><span>Incline Village</span><small>89451-89452</small></li>
+						<li><span>Minden / Gardnerville</span><small>89423</small></li>
+						<li><span>Fernley</span><small>89408</small></li>
+						<li><span>South Lake Tahoe</span><small>96150</small></li>
+						<li><span>Truckee</span><small>96161</small></li>
+					</ul>
+				</div>
+				<div class="map reveal" data-delay="2">
+					<div id="bpwh-service-map" style="width: 100%; height: 100%;"></div>
+					<div class="map__attrib">OSM - CARTO</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section section--tight" aria-labelledby="support-title">
+		<div class="wrap">
+			<div class="section-head">
+				<div class="section-head__title">
+					<div class="eyebrow reveal">More ways in</div>
+					<h2 class="reveal" data-delay="1" id="support-title">Message, portal, or chat.</h2>
+				</div>
+				<p class="section-head__sub reveal" data-delay="2">
 					Use these for commercial scopes, multi-unit properties, job history, invoices,
 					project status, files, or quick questions before booking.
 				</p>
 			</div>
-			<div class="bpwh-support-grid">
-				<section class="bpwh-support-card bpwh-reveal" aria-labelledby="contact-title">
+			<div class="bpwh-design-support">
+				<section class="bpwh-design-support__card reveal" aria-labelledby="contact-title">
 					<h3 id="contact-title">Send a message</h3>
-					<p>Best for commercial scopes, multi-unit properties, or questions that need context.</p>
-					<form class="bpwh-contact" id="bpwh-contact-form">
+					<p>Best for commercial scopes or questions that need context.</p>
+					<form id="bpwh-contact-form">
 						<div class="bpwh-booking__status" id="bpwh-contact-status" role="status" aria-live="polite"></div>
 						<input name="full_name" placeholder="Name" autocomplete="name" required>
 						<input name="email" type="email" placeholder="Email" autocomplete="email" required>
 						<input name="phone" placeholder="Phone" autocomplete="tel" required>
 						<textarea name="message" rows="5" placeholder="How can BP Water Heaters help?" required></textarea>
-						<button class="bpwh-public-btn bpwh-public-btn--ghost" type="submit">Send message</button>
+						<button class="btn btn--ghost" type="submit" data-default-text="Send message">Send message</button>
 					</form>
 				</section>
-
-				<section class="bpwh-support-card bpwh-reveal" data-delay="1" aria-labelledby="portal-title">
+				<section class="bpwh-design-support__card reveal" data-delay="1" aria-labelledby="portal-title">
 					<h3 id="portal-title">Open your job history</h3>
 					<p>Get a secure link for bookings, invoices, project status, files, and chat.</p>
-					<form class="bpwh-contact bpwh-contact--compact" id="bpwh-portal-form">
+					<form id="bpwh-portal-form">
 						<div class="bpwh-booking__status" id="bpwh-portal-status" role="status" aria-live="polite"></div>
 						<input name="email" type="email" placeholder="Email" autocomplete="email" required>
-						<button class="bpwh-public-btn bpwh-public-btn--ghost" type="submit">Send secure link</button>
+						<button class="btn btn--ghost" type="submit" data-default-text="Send secure link">Send secure link</button>
 					</form>
 				</section>
-
-				<section class="bpwh-support-card bpwh-reveal" data-delay="2" aria-labelledby="chat-title">
+				<section class="bpwh-design-support__card reveal" data-delay="2" aria-labelledby="chat-title">
 					<h3 id="chat-title">Start a chat</h3>
 					<p>Ask a water heater question or send job details. Messages stay with your record.</p>
-					<form class="bpwh-contact" id="bpwh-chat-form">
+					<form id="bpwh-chat-form">
 						<div class="bpwh-booking__status" id="bpwh-chat-status" role="status" aria-live="polite"></div>
 						<input name="full_name" placeholder="Name" autocomplete="name" required>
 						<input name="email" type="email" placeholder="Email" autocomplete="email" required>
 						<input name="phone" placeholder="Phone" autocomplete="tel">
 						<textarea name="message" rows="5" placeholder="What can BP Water Heaters help with?" required></textarea>
-						<button class="bpwh-public-btn bpwh-public-btn--primary" type="submit">Send chat</button>
+						<button class="btn btn--primary" type="submit" data-default-text="Send chat">Send chat</button>
 					</form>
 				</section>
 			</div>
 		</div>
 	</section>
 
-	<section class="bpwh-public-section bpwh-faq" id="faq" aria-labelledby="faq-title">
-		<div class="bpwh-public-wrap">
-			<div class="bpwh-public-section-head">
-				<div>
-					<p class="bpwh-public-eyebrow bpwh-reveal">Common questions</p>
-					<h2 class="bpwh-reveal" data-delay="1" id="faq-title">No-nonsense answers.</h2>
+	<section class="section" id="faq" aria-labelledby="faq-title">
+		<div class="wrap">
+			<div class="section-head">
+				<div class="section-head__title">
+					<div class="eyebrow reveal">Common questions</div>
+					<h2 class="reveal" data-delay="1" id="faq-title">No-nonsense answers.</h2>
 				</div>
-				<p class="bpwh-public-section-copy bpwh-reveal" data-delay="2">
+				<p class="section-head__sub reveal" data-delay="2">
 					If something is not here, call or text (775) 815-9875.
 				</p>
 			</div>
-			<div class="bpwh-faq__list bpwh-reveal" data-bpwh-faq-list>
-				<section class="bpwh-faq__item is-open">
-					<button class="bpwh-faq__button" type="button" aria-expanded="true">How fast can you come out?</button>
-					<div class="bpwh-faq__panel">
-						<p>Most weeks have openings within 24-48 hours. The online booking form shows currently available estimate windows.</p>
+			<div class="faq__list reveal" data-bpwh-faq-list>
+				<div class="faq__item open">
+					<button class="faq__btn" type="button" aria-expanded="true">
+						<span>How fast can you actually come out?</span>
+						<span class="faq__icon" aria-hidden="true"></span>
+					</button>
+					<div class="faq__panel" style="max-height: 240px;">
+						<div class="faq__inner">Most weeks we have openings within 24-48 hours. The online booking form shows the currently available estimate windows.</div>
 					</div>
-				</section>
-				<section class="bpwh-faq__item">
-					<button class="bpwh-faq__button" type="button" aria-expanded="false">Is the $85 fee credited?</button>
-					<div class="bpwh-faq__panel">
-						<p>Yes. If you approve BP Water Heaters for the repair or replacement, the full estimate fee is credited to the job.</p>
+				</div>
+				<div class="faq__item">
+					<button class="faq__btn" type="button" aria-expanded="false">
+						<span>Is the $85 fee really credited?</span>
+						<span class="faq__icon" aria-hidden="true"></span>
+					</button>
+					<div class="faq__panel" style="max-height: 0;">
+						<div class="faq__inner">Yes. If you book the repair or replacement with BP Water Heaters, the full $85 is deducted from the final invoice.</div>
 					</div>
-				</section>
-				<section class="bpwh-faq__item">
-					<button class="bpwh-faq__button" type="button" aria-expanded="false">Do you work on tankless systems?</button>
-					<div class="bpwh-faq__panel">
-						<p>Yes. BP Water Heaters handles tank and tankless diagnostics, replacements, and install planning.</p>
+				</div>
+				<div class="faq__item">
+					<button class="faq__btn" type="button" aria-expanded="false">
+						<span>Tank or tankless - which is right for my home?</span>
+						<span class="faq__icon" aria-hidden="true"></span>
+					</button>
+					<div class="faq__panel" style="max-height: 0;">
+						<div class="faq__inner">It depends on demand, gas line size, venting, and electrical. We measure those on-site and give practical options.</div>
 					</div>
-				</section>
-				<section class="bpwh-faq__item">
-					<button class="bpwh-faq__button" type="button" aria-expanded="false">Do you do commercial work?</button>
-					<div class="bpwh-faq__panel">
-						<p>Yes. Restaurants, light commercial, multi-unit, and property management jobs can start through the message form.</p>
+				</div>
+				<div class="faq__item">
+					<button class="faq__btn" type="button" aria-expanded="false">
+						<span>Do you do commercial work?</span>
+						<span class="faq__icon" aria-hidden="true"></span>
+					</button>
+					<div class="faq__panel" style="max-height: 0;">
+						<div class="faq__inner">Yes. Restaurants, multi-family, property managers, and light commercial jobs can start through the message form.</div>
 					</div>
-				</section>
+				</div>
+				<div class="faq__item">
+					<button class="faq__btn" type="button" aria-expanded="false">
+						<span>Are you licensed in Nevada?</span>
+						<span class="faq__icon" aria-hidden="true"></span>
+					</button>
+					<div class="faq__panel" style="max-height: 0;">
+						<div class="faq__inner">Nevada State Contractors Board license #0095421, classification C-1 plumbing. Bonded and insured.</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</section>
 
-	<footer class="bpwh-public-footer">
-		<div class="bpwh-public-wrap bpwh-public-footer__inner">
-			<div>
-				<div class="bpwh-public-footer__brand">
-					<img src="/assets/bp_water_heaters/images/bp-logo.png" alt="">
-					<strong>BP Water Heaters</strong>
+	<footer class="footer">
+		<div class="wrap">
+			<div class="footer__inner">
+				<div>
+					<div class="footer__brand">
+						<div class="logo"><img src="/assets/bp_water_heaters/images/bp-logo.png" alt=""></div>
+						<strong>BP Water Heaters</strong>
+					</div>
+					<a class="footer__big-phone mono" href="tel:+17758159875">(775) 815-9875</a>
+					<p style="color: var(--steel-200); font-size: 14.5px; max-width: 32ch;">
+						Family-run water heater specialists serving Northern Nevada
+						and the eastern Sierra since 2013.
+					</p>
 				</div>
-				<a class="bpwh-public-footer__phone" href="tel:+17758159875">(775) 815-9875</a>
-				<p>Family-run water heater specialists serving Northern Nevada and the eastern Sierra since 2013.</p>
+				<div>
+					<h4>Services</h4>
+					<ul class="footer__list">
+						<li><a href="#services">Estimates</a></li>
+						<li><a href="#services">Repairs</a></li>
+						<li><a href="#services">Tank replacements</a></li>
+						<li><a href="#services">Tankless installs</a></li>
+						<li><a href="#services">Commercial</a></li>
+					</ul>
+				</div>
+				<div>
+					<h4>Company</h4>
+					<ul class="footer__list">
+						<li><a href="#process">How it works</a></li>
+						<li><a href="#booking">Book online</a></li>
+						<li><a href="#coverage">Service area</a></li>
+						<li><a href="#faq">FAQ</a></li>
+						<li><a href="https://portal.bpwaterheaters.com/">Customer portal</a></li>
+					</ul>
+				</div>
+				<div>
+					<h4>Contact</h4>
+					<ul class="footer__list">
+						<li><a href="tel:+17758159875">(775) 815-9875</a></li>
+						<li><a href="mailto:hello@bpwaterheaters.com">hello@bpwaterheaters.com</a></li>
+						<li>Reno - Sparks - Carson</li>
+						<li>Mon-Fri - 9a-5p</li>
+						<li>Book online anytime</li>
+					</ul>
+				</div>
 			</div>
-			<nav aria-label="Footer services">
-				<h2>Services</h2>
-				<a href="#services">Estimates</a>
-				<a href="#services">Repairs</a>
-				<a href="#services">Tank replacements</a>
-				<a href="#services">Tankless installs</a>
-			</nav>
-			<nav aria-label="Footer company">
-				<h2>Company</h2>
-				<a href="#process">How it works</a>
-				<a href="#booking">Book online</a>
-				<a href="#coverage">Service area</a>
-				<a href="#faq">FAQ</a>
-			</nav>
-			<nav aria-label="Footer contact">
-				<h2>Contact</h2>
-				<a href="tel:+17758159875">(775) 815-9875</a>
-				<a href="mailto:hello@bpwaterheaters.com">hello@bpwaterheaters.com</a>
-				<span>Reno - Sparks - Carson</span>
-				<span>Mon-Fri, 9 AM-5 PM</span>
-			</nav>
-		</div>
-		<div class="bpwh-public-wrap bpwh-public-footer__bottom">
-			<span>BP Water Heaters, LLC</span>
-			<span>NV State Contractors Lic. #0095421 - C-1 plumbing - Bonded and insured</span>
+			<div class="footer__bottom">
+				<span>BP Water Heaters, LLC</span>
+				<span>NV State Contractors Lic. #0095421 - C-1 plumbing - Bonded and insured</span>
+				<span>Customer-facing site for bpwaterheaters.com</span>
+			</div>
 		</div>
 	</footer>
 </main>

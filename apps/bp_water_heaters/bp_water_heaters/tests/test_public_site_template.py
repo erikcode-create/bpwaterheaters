@@ -4,6 +4,7 @@ from pathlib import Path
 APP_ROOT = Path(__file__).resolve().parents[1]
 PUBLIC_SITE_TEMPLATE = APP_ROOT / "www" / "bpwaterheaters.html"
 PUBLIC_CSS = APP_ROOT / "public" / "css" / "bpwh.css"
+PUBLIC_DESIGN_CSS = APP_ROOT / "public" / "css" / "bpwh_design.css"
 
 
 def _public_site_template():
@@ -14,18 +15,29 @@ def _public_css():
 	return PUBLIC_CSS.read_text()
 
 
+def _public_design_css():
+	return PUBLIC_DESIGN_CSS.read_text()
+
+
 def test_public_site_uses_launch_handoff_design_markers():
 	template = _public_site_template()
-	css = _public_css()
+	css = _public_design_css()
 
-	assert "Hot water, handled" in template
+	assert "Hot water," in template
+	assert "handled" in template
 	assert "NV LIC #0095421" in template
-	assert "bpwh-trust" in template
-	assert "bpwh-coverage" in template
-	assert "bpwh-faq" in template
+	assert 'class="nav' in template
+	assert 'class="hero' in template
+	assert 'class="trust' in template
+	assert 'class="services-grid"' in template
+	assert 'class="booking__panel' in template
+	assert 'class="coverage' in template
+	assert 'class="faq__list' in template
 	assert "/assets/bp_water_heaters/js/bpwh_public.js" in template
-	assert ".bpwh-reveal.is-visible" in css
+	assert "/assets/bp_water_heaters/css/bpwh_design.css" in template
+	assert ".reveal.is-visible" in css
 	assert "prefers-reduced-motion" in css
+	assert 'class="bpwh-public' not in template
 
 
 def test_public_site_preserves_booking_and_customer_action_hooks():
@@ -34,6 +46,7 @@ def test_public_site_preserves_booking_and_customer_action_hooks():
 	required_hooks = [
 		'id="bpwh-booking-form"',
 		'id="bpwh-booking-status"',
+		'id="bpwh-slot-buttons"',
 		'name="preferred_start"',
 		'name="customer_name"',
 		'name="email"',

@@ -4,6 +4,7 @@
 	const portalForm = document.getElementById("bpwh-portal-form");
 	const chatForm = document.getElementById("bpwh-chat-form");
 	const slotSelect = bookingForm && bookingForm.querySelector("select[name='preferred_start']");
+	const slotButtons = document.getElementById("bpwh-slot-buttons");
 	const bookingStatus = document.getElementById("bpwh-booking-status");
 	const contactStatus = document.getElementById("bpwh-contact-status");
 	const portalStatus = document.getElementById("bpwh-portal-status");
@@ -31,21 +32,47 @@
 		return data.message;
 	}
 
+	function renderSlotButtons(slots) {
+		if (!slotButtons || !slotSelect) return;
+		slotButtons.innerHTML = "";
+		for (const slot of slots) {
+			const button = document.createElement("button");
+			button.type = "button";
+			button.className = "slot";
+			button.dataset.value = slot.start;
+			button.append(document.createTextNode(slot.label));
+			const meta = document.createElement("small");
+			meta.textContent = "available";
+			button.append(meta);
+			button.addEventListener("click", () => {
+				slotSelect.value = slot.start;
+				slotButtons.querySelectorAll(".slot").forEach((item) => item.setAttribute("aria-pressed", "false"));
+				button.setAttribute("aria-pressed", "true");
+			});
+			button.setAttribute("aria-pressed", "false");
+			slotButtons.append(button);
+		}
+	}
+
 	async function loadSlots() {
 		if (!slotSelect) return;
 		try {
 			const data = await call("bp_water_heaters.api.booking.get_available_slots");
+			const slots = Array.isArray(data.slots) ? data.slots : [];
 			slotSelect.innerHTML = "";
-			if (!data.slots.length) {
+			if (slotButtons) slotButtons.innerHTML = "";
+			if (!slots.length) {
 				slotSelect.innerHTML = "<option value=''>No online slots are open right now</option>";
 				return;
 			}
 			slotSelect.append(new Option("Choose an appointment time", ""));
-			for (const slot of data.slots) {
+			for (const slot of slots) {
 				slotSelect.append(new Option(slot.label, slot.start));
 			}
+			renderSlotButtons(slots);
 		} catch (error) {
 			slotSelect.innerHTML = "<option value=''>Unable to load slots</option>";
+			if (slotButtons) slotButtons.innerHTML = "";
 			showStatus(bookingStatus, "We could not load online appointment times. Please call 775-815-9875.");
 		}
 	}
@@ -55,6 +82,7 @@
 		const formData = new FormData(bookingForm);
 		const payload = Object.fromEntries(formData.entries());
 		const button = bookingForm.querySelector("button[type='submit']");
+		const defaultText = button.dataset.defaultText || button.textContent;
 		button.disabled = true;
 		button.textContent = "Holding slot...";
 		try {
@@ -72,7 +100,7 @@
 			showStatus(bookingStatus, "That booking could not be created. Please check the form or call 775-815-9875.");
 		} finally {
 			button.disabled = false;
-			button.textContent = "Hold slot and pay $85";
+			button.textContent = defaultText;
 		}
 	}
 
@@ -80,6 +108,7 @@
 		event.preventDefault();
 		const payload = Object.fromEntries(new FormData(contactForm).entries());
 		const button = contactForm.querySelector("button[type='submit']");
+		const defaultText = button.dataset.defaultText || button.textContent;
 		button.disabled = true;
 		button.textContent = "Sending...";
 		try {
@@ -90,7 +119,7 @@
 			showStatus(contactStatus, "Message could not be sent. Please call 775-815-9875.");
 		} finally {
 			button.disabled = false;
-			button.textContent = "Send message";
+			button.textContent = defaultText;
 		}
 	}
 
@@ -98,6 +127,7 @@
 		event.preventDefault();
 		const payload = Object.fromEntries(new FormData(portalForm).entries());
 		const button = portalForm.querySelector("button[type='submit']");
+		const defaultText = button.dataset.defaultText || button.textContent;
 		button.disabled = true;
 		button.textContent = "Sending...";
 		try {
@@ -108,7 +138,7 @@
 			showStatus(portalStatus, "Portal link could not be sent. Please call 775-815-9875.");
 		} finally {
 			button.disabled = false;
-			button.textContent = "Send secure link";
+			button.textContent = defaultText;
 		}
 	}
 
@@ -116,6 +146,7 @@
 		event.preventDefault();
 		const payload = Object.fromEntries(new FormData(chatForm).entries());
 		const button = chatForm.querySelector("button[type='submit']");
+		const defaultText = button.dataset.defaultText || button.textContent;
 		button.disabled = true;
 		button.textContent = "Sending...";
 		try {
@@ -126,7 +157,7 @@
 			showStatus(chatStatus, "Chat could not be started. Please call 775-815-9875.");
 		} finally {
 			button.disabled = false;
-			button.textContent = "Send chat";
+			button.textContent = defaultText;
 		}
 	}
 
