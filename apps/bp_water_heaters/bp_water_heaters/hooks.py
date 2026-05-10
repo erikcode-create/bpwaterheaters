@@ -8,10 +8,13 @@ app_logo_url = "/assets/bp_water_heaters/images/bpwh-logo.svg"
 app_include_css = "/assets/bp_water_heaters/css/bpwh_brand.css"
 web_include_css = "/assets/bp_water_heaters/css/bpwh_brand.css"
 
+from bp_water_heaters.launch import JUNK_PROBE_ROUTES
+
 after_install = "bp_water_heaters.install.after_install"
 after_migrate = "bp_water_heaters.install.after_migrate"
 
 website_route_rules = [
+	*({"from_route": route, "to_route": "bpwh_not_found"} for route in JUNK_PROBE_ROUTES),
 	{"from_route": "/", "to_route": "bpwaterheaters"},
 	{"from_route": "/bpwaterheaters-admin", "to_route": "bpwaterheaters_admin"},
 	{"from_route": "/bpwaterheaters-portal", "to_route": "bpwaterheaters_portal"},

@@ -10,6 +10,9 @@
 {% endblock %}
 
 {% block page_content %}
+{% if is_portal_root %}
+{% include "bp_water_heaters/templates/includes/bpwh_portal_content.html" %}
+{% else %}
 <main class="bpwh-site">
 	<section class="bpwh-hero" aria-labelledby="bpwh-title">
 		<div class="bpwh-hero__shade"></div>
@@ -170,4 +173,5 @@
 	</section>
 </main>
 <script src="/assets/bp_water_heaters/js/bpwh_booking.js"></script>
+{% endif %}
 {% endblock %}
