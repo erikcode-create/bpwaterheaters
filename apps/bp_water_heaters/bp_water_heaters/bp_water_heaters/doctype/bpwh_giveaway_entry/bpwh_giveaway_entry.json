@@ -1,0 +1,253 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "naming_series:",
+ "creation": "2026-05-21 12:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "campaign_section",
+  "campaign_name",
+  "entry_source",
+  "entry_kind",
+  "status",
+  "household_key",
+  "eligibility_section",
+  "full_name",
+  "email",
+  "phone",
+  "is_adult",
+  "homeowner_authorized",
+  "marketing_opt_in",
+  "address_section",
+  "property_address",
+  "city",
+  "state",
+  "postal_code",
+  "service_section",
+  "linked_booking",
+  "linked_sales_invoice",
+  "flush_paid_completed",
+  "winner_section",
+  "winner_selected_at",
+  "winner_selected_by",
+  "notes"
+ ],
+ "fields": [
+  {
+   "default": "BPWH-GIVE-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "BPWH-GIVE-.YYYY.-.#####"
+  },
+  {
+   "fieldname": "campaign_section",
+   "fieldtype": "Section Break",
+   "label": "Campaign"
+  },
+  {
+   "default": "2026 Free Install Sweepstakes",
+   "fieldname": "campaign_name",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Campaign Name",
+   "reqd": 1
+  },
+  {
+   "default": "Free Online Entry",
+   "fieldname": "entry_source",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Entry Source",
+   "options": "Free Online Entry\nFree Bonus Entry\nPaid Flush",
+   "reqd": 1
+  },
+  {
+   "default": "Standard",
+   "fieldname": "entry_kind",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Entry Kind",
+   "options": "Standard\nBonus",
+   "reqd": 1
+  },
+  {
+   "default": "Pending Validation",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Pending Validation\nEligible\nDuplicate\nWinner\nIneligible\nCancelled",
+   "reqd": 1
+  },
+  {
+   "fieldname": "household_key",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Household Key",
+   "read_only": 1
+  },
+  {
+   "fieldname": "eligibility_section",
+   "fieldtype": "Section Break",
+   "label": "Eligibility"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Email",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_adult",
+   "fieldtype": "Check",
+   "label": "Entrant Confirms 18+"
+  },
+  {
+   "default": "0",
+   "fieldname": "homeowner_authorized",
+   "fieldtype": "Check",
+   "label": "Homeowner or Authorized"
+  },
+  {
+   "default": "0",
+   "fieldname": "marketing_opt_in",
+   "fieldtype": "Check",
+   "label": "Marketing Opt-In"
+  },
+  {
+   "fieldname": "address_section",
+   "fieldtype": "Section Break",
+   "label": "Service Address"
+  },
+  {
+   "fieldname": "property_address",
+   "fieldtype": "Small Text",
+   "label": "Property Address",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City",
+   "reqd": 1
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Select",
+   "label": "State",
+   "options": "NV\nCA",
+   "reqd": 1
+  },
+  {
+   "fieldname": "postal_code",
+   "fieldtype": "Data",
+   "label": "ZIP / Postal Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "service_section",
+   "fieldtype": "Section Break",
+   "label": "Linked Service"
+  },
+  {
+   "fieldname": "linked_booking",
+   "fieldtype": "Link",
+   "label": "Linked Booking",
+   "options": "BPWH Booking"
+  },
+  {
+   "fieldname": "linked_sales_invoice",
+   "fieldtype": "Link",
+   "label": "Linked Sales Invoice",
+   "options": "Sales Invoice"
+  },
+  {
+   "default": "0",
+   "fieldname": "flush_paid_completed",
+   "fieldtype": "Check",
+   "label": "Flush Paid and Completed"
+  },
+  {
+   "fieldname": "winner_section",
+   "fieldtype": "Section Break",
+   "label": "Winner"
+  },
+  {
+   "fieldname": "winner_selected_at",
+   "fieldtype": "Datetime",
+   "label": "Winner Selected At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "winner_selected_by",
+   "fieldtype": "Data",
+   "label": "Winner Selected By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Long Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-05-21 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "BP Water Heaters",
+ "name": "BPWH Giveaway Entry",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "BPWH Admin",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "full_name",
+ "track_changes": 1
+}

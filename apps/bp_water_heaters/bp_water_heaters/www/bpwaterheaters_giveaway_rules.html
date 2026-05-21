@@ -1,0 +1,117 @@
+{% extends "templates/web.html" %}
+
+{% block footer %}{% endblock %}
+
+{% block head_include %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/bp_water_heaters/css/bpwh.css">
+<link rel="stylesheet" href="/assets/bp_water_heaters/css/bpwh_design.css">
+{% endblock %}
+
+{% block page_content %}
+<main class="giveaway-page">
+	<nav class="nav" aria-label="BP Water Heaters giveaway rules">
+		<div class="nav__inner">
+			<a href="/bpwaterheaters" class="nav__brand">
+				<div class="nav__logo"><img src="/assets/bp_water_heaters/images/bp-logo.png" alt="BP Water Heaters logo"></div>
+				<div class="nav__name">
+					BP Water Heaters
+					<small>NV LIC #0095421</small>
+				</div>
+			</a>
+			<div class="nav__cta">
+				<a class="nav__phone" href="tel:+17758159875">
+					<span class="pulse"></span>
+					(775) 815-9875
+				</a>
+				<a class="btn btn--primary" href="/bpwaterheaters-giveaway">Enter sweepstakes</a>
+			</div>
+		</div>
+	</nav>
+
+	<section class="giveaway-hero" aria-labelledby="rules-title">
+		<div class="wrap giveaway-hero__inner">
+			<div>
+				<div class="eyebrow">Official rules draft</div>
+				<h1 id="rules-title">BP Water Heaters 30-Day Free Install Sweepstakes Official Rules</h1>
+				<p>
+					No purchase necessary. Purchase does not increase odds. Up to two entries per household.
+					Void where prohibited.
+				</p>
+			</div>
+			<aside class="giveaway-legal-card">
+				<strong>Attorney review required</strong>
+				<p>Have the final official rules reviewed by a sweepstakes or promo attorney before launch.</p>
+				<a href="/bpwaterheaters-giveaway">Back to entry page</a>
+			</aside>
+		</div>
+	</section>
+
+	<section class="section giveaway-rules" aria-labelledby="rules-summary-title">
+		<div class="wrap">
+			<div class="section-head">
+				<div class="section-head__title">
+					<div class="eyebrow">Campaign terms</div>
+					<h2 id="rules-summary-title">30-day sweepstakes rules.</h2>
+				</div>
+				<p class="section-head__sub">
+					Entry window: {{ giveaway.start_at or "Configured before launch" }} through
+					{{ giveaway.end_at or "Configured before launch" }}.
+				</p>
+			</div>
+			<div class="giveaway-rules__grid">
+				<article>
+					<h3>Sponsor</h3>
+					<p>BP Water Heaters is the sponsor of the 30-day free install sweepstakes.</p>
+				</article>
+				<article>
+					<h3>Eligibility</h3>
+					<p>Open to adults with a service address in BP Water Heaters' service area who own the home or have authority to approve the install.</p>
+				</article>
+				<article>
+					<h3>How to enter</h3>
+					<p>Use the Free online entry form for a standard entry. Use the same form once more for a Free bonus entry, or receive a bonus entry after a $125 water heater flush is paid and completed. No purchase necessary.</p>
+				</article>
+				<article>
+					<h3>Entry limit</h3>
+					<p>Up to two entries per household: one standard entry and one bonus entry. Duplicate entries beyond those limits may be rejected or cancelled.</p>
+				</article>
+				<article>
+					<h3>Prize</h3>
+					<p>One standard 40-50 gallon tank water heater replacement package, gas, propane, or electric, capped at $3,000 ARV.</p>
+				</article>
+				<article>
+					<h3>Prize inclusions</h3>
+					<p>Includes standard labor, standard materials, permit, and haul-away for the defined replacement package.</p>
+				</article>
+				<article>
+					<h3>Exclusions</h3>
+					<p>No tankless systems. Major code upgrades, venting, gas, electrical, access, platform, relocation, or other non-standard work are excluded unless waived in writing.</p>
+				</article>
+				<article>
+					<h3>Winner selection</h3>
+					<p>Eligible entries will be exported after the entry window closes and selected through a manual spreadsheet drawing.</p>
+				</article>
+				<article>
+					<h3>Odds</h3>
+					<p>Purchase does not increase odds because a free bonus entry method is available. Odds depend on the number of eligible entries received.</p>
+				</article>
+				<article>
+					<h3>Taxes</h3>
+					<p>The winner is responsible for applicable taxes and costs outside the standard prize package unless BP Water Heaters chooses otherwise in writing.</p>
+				</article>
+				<article>
+					<h3>Winner confirmation</h3>
+					<p>The selected winner must respond, confirm eligibility, and authorize the standard installation before the prize is awarded.</p>
+				</article>
+				<article>
+					<h3>General terms</h3>
+					<p>Void where prohibited. BP Water Heaters may cancel, suspend, or modify the sweepstakes if fraud, technical issues, or legal requirements affect the campaign.</p>
+				</article>
+			</div>
+		</div>
+	</section>
+</main>
+{% endblock %}

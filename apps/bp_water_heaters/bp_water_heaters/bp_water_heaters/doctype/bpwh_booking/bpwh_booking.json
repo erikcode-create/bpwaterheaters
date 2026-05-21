@@ -84,7 +84,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Service Type",
-   "options": "Estimate\nRepair\nReplacement\nCommercial\nOther",
+   "options": "Estimate\nRepair\nReplacement\nTankless\nFlush\nCommercial\nOther",
    "reqd": 1
   },
   {
@@ -148,13 +148,13 @@
    "read_only": 1
   },
   {
-   "default": "Pending Payment",
+   "default": "Requested",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "Pending Payment\nPayment Pending Settlement\nConfirmed\nPayment Failed\nCancelled\nCompleted\nExpired\nRefunded\nDisputed",
+   "options": "Requested\nPending Payment\nPayment Pending Settlement\nConfirmed\nPayment Failed\nCancelled\nCompleted\nExpired\nRefunded\nDisputed",
    "reqd": 1
   },
   {

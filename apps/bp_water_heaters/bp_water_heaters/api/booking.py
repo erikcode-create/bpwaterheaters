@@ -6,7 +6,7 @@ from decimal import Decimal
 
 import frappe
 from frappe import _
-from frappe.utils import add_to_date, get_datetime, getdate, now_datetime
+from frappe.utils import get_datetime, getdate, now_datetime
 
 from bp_water_heaters.erp import prepare_booking_erp_records, record_payment_for_booking, record_payment_for_invoice
 from bp_water_heaters.payments import classify_stripe_event, redact_stripe_payload_rows, sanitize_stripe_event_for_audit
@@ -15,12 +15,13 @@ from bp_water_heaters.taxes import select_tax_rule
 from bp_water_heaters.urls import public_url
 
 CALL_OUT_FEE = Decimal("85.00")
+REQUESTED_STATUS = "Requested"
 SLOT_MINUTES = 60
 BUFFER_MINUTES = 30
 HOLD_MINUTES = 30
 WORK_START = time(9, 0)
 WORK_END = time(17, 0)
-ACTIVE_STATUSES = ("Pending Payment", "Payment Pending Settlement", "Confirmed")
+ACTIVE_STATUSES = (REQUESTED_STATUS, "Pending Payment", "Payment Pending Settlement", "Confirmed")
 
 
 @frappe.whitelist(allow_guest=True)
@@ -54,7 +55,7 @@ def get_available_slots(start_date: str | None = None, days: int = 14):
 
 
 @frappe.whitelist(allow_guest=True)
-def create_booking_hold(
+def create_booking_request(
 	customer_name: str,
 	email: str,
 	phone: str,
@@ -67,16 +68,13 @@ def create_booking_hold(
 	county: str | None = None,
 	notes: str | None = None,
 ):
-	require_bpwh_rate_limit(frappe, "booking-hold-ip", client_ip(frappe), limit=8, window_seconds=3600)
-	require_bpwh_rate_limit(frappe, "booking-hold-email", email, limit=4, window_seconds=3600)
-	slot_start = get_datetime(preferred_start)
-	slot_end = slot_start + timedelta(minutes=SLOT_MINUTES)
+	require_bpwh_rate_limit(frappe, "booking-request-ip", client_ip(frappe), limit=8, window_seconds=3600)
+	require_bpwh_rate_limit(frappe, "booking-request-email", email, limit=4, window_seconds=3600)
+	requested_start = _parse_preferred_start(preferred_start)
+	requested_end = requested_start + timedelta(minutes=SLOT_MINUTES)
 
 	_validate_customer_input(customer_name, email, phone, property_address, city, state, postal_code)
-	_validate_slot(slot_start, slot_end)
-
-	if not _slot_is_available(slot_start, slot_end, _get_bookings(slot_start.date(), slot_end.date() + timedelta(days=1))):
-		frappe.throw(_("That appointment time was just taken. Please choose another slot."))
+	_validate_requested_time(requested_start)
 
 	booking = frappe.get_doc(
 		{
@@ -90,10 +88,10 @@ def create_booking_hold(
 			"county": (county or "").strip(),
 			"state": state.strip().upper(),
 			"postal_code": postal_code.strip(),
-			"preferred_start": slot_start,
-			"preferred_end": slot_end,
-			"hold_expires_at": add_to_date(now_datetime(), minutes=HOLD_MINUTES),
-			"status": "Pending Payment",
+			"preferred_start": requested_start,
+			"preferred_end": requested_end,
+			"hold_expires_at": None,
+			"status": REQUESTED_STATUS,
 			"callout_fee": CALL_OUT_FEE,
 			"stripe_payment_status": "Not Started",
 			"payment_settlement_status": "Not Started",
@@ -103,14 +101,43 @@ def create_booking_hold(
 	booking.insert(ignore_permissions=True)
 	_apply_tax_rule_to_booking(booking)
 
-	checkout = _create_checkout_session_if_configured(booking)
 	return {
 		"booking": booking.name,
 		"status": booking.status,
 		"hold_expires_at": booking.hold_expires_at,
 		"callout_fee": float(CALL_OUT_FEE),
-		"checkout": checkout,
+		"checkout": None,
+		"payment_timing": "Collected on-site or after the diagnostic.",
 	}
+
+
+@frappe.whitelist(allow_guest=True)
+def create_booking_hold(
+	customer_name: str,
+	email: str,
+	phone: str,
+	property_address: str,
+	city: str,
+	state: str,
+	postal_code: str,
+	preferred_start: str,
+	service_type: str = "Estimate",
+	county: str | None = None,
+	notes: str | None = None,
+):
+	return create_booking_request(
+		customer_name=customer_name,
+		email=email,
+		phone=phone,
+		property_address=property_address,
+		city=city,
+		state=state,
+		postal_code=postal_code,
+		preferred_start=preferred_start,
+		service_type=service_type,
+		county=county,
+		notes=notes,
+	)
 
 
 @frappe.whitelist(allow_guest=True)
@@ -385,6 +412,23 @@ def _validate_customer_input(customer_name, email, phone, property_address, city
 		frappe.throw(_("Please fill out every required field."))
 	if state.strip().upper() not in {"NV", "CA"}:
 		frappe.throw(_("Online booking is currently available for Nevada and California addresses."))
+
+
+def _parse_preferred_start(preferred_start: str) -> datetime:
+	if not preferred_start:
+		frappe.throw(_("Please choose a preferred date and time."))
+	try:
+		parsed = get_datetime(preferred_start.replace("T", " ") if isinstance(preferred_start, str) else preferred_start)
+	except Exception:
+		frappe.throw(_("Please choose a valid preferred date and time."))
+	if not parsed:
+		frappe.throw(_("Please choose a valid preferred date and time."))
+	return parsed
+
+
+def _validate_requested_time(requested_start: datetime):
+	if requested_start <= now_datetime():
+		frappe.throw(_("Please choose a future date and time."))
 
 
 def _validate_slot(slot_start: datetime, slot_end: datetime):

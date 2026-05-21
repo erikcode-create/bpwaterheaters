@@ -159,6 +159,7 @@ struct BookingRow: View {
     let reload: () async -> Void
 
     private let statuses = [
+        "Requested",
         "Pending Payment",
         "Payment Pending Settlement",
         "Confirmed",

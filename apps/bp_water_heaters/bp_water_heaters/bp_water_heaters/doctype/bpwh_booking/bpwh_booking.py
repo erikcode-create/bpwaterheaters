@@ -11,6 +11,8 @@ class BPWHBooking(Document):
 			self.preferred_end = get_datetime(self.preferred_start) + timedelta(hours=1)
 		if not self.callout_fee:
 			self.callout_fee = 85
+		if not self.status:
+			self.status = "Requested"
 		if self.status == "Pending Payment" and not self.hold_expires_at:
 			self.hold_expires_at = add_to_date(now_datetime(), minutes=15)
 		if self.email:

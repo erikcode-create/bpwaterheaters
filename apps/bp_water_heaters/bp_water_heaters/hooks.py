@@ -18,6 +18,10 @@ website_route_rules = [
 	{"from_route": "/", "to_route": "bpwaterheaters"},
 	{"from_route": "/bpwaterheaters-admin", "to_route": "bpwaterheaters_admin"},
 	{"from_route": "/bpwaterheaters-portal", "to_route": "bpwaterheaters_portal"},
+	{"from_route": "/bpwaterheaters-giveaway", "to_route": "bpwaterheaters_giveaway"},
+	{"from_route": "/bpwaterheaters-giveaway-rules", "to_route": "bpwaterheaters_giveaway_rules"},
+	{"from_route": "/giveaway", "to_route": "bpwaterheaters_giveaway"},
+	{"from_route": "/giveaway-rules", "to_route": "bpwaterheaters_giveaway_rules"},
 ]
 
 scheduler_events = {

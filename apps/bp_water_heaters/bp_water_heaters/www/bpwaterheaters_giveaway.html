@@ -1,0 +1,175 @@
+{% extends "templates/web.html" %}
+
+{% block footer %}{% endblock %}
+
+{% block head_include %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/bp_water_heaters/css/bpwh.css">
+<link rel="stylesheet" href="/assets/bp_water_heaters/css/bpwh_design.css">
+{% endblock %}
+
+{% block page_content %}
+<main class="giveaway-page">
+	<nav class="nav" aria-label="BP Water Heaters giveaway">
+		<div class="nav__inner">
+			<a href="/bpwaterheaters" class="nav__brand">
+				<div class="nav__logo"><img src="/assets/bp_water_heaters/images/bp-logo.png" alt="BP Water Heaters logo"></div>
+				<div class="nav__name">
+					BP Water Heaters
+					<small>NV LIC #0095421</small>
+				</div>
+			</a>
+			<div class="nav__cta">
+				<a class="nav__phone" href="tel:+17758159875">
+					<span class="pulse"></span>
+					(775) 815-9875
+				</a>
+				<a class="btn btn--primary" href="/bpwaterheaters#booking">Book a $125 flush</a>
+			</div>
+		</div>
+	</nav>
+
+	<section class="giveaway-hero" aria-labelledby="giveaway-title">
+		<div class="wrap giveaway-hero__inner">
+			<div>
+				<div class="eyebrow">30-day sweepstakes</div>
+				<h1 id="giveaway-title">Win a free standard water heater install.</h1>
+				<p>
+					Enter for a chance to win a 40-50 gallon tank water heater replacement package
+					up to $3,000 ARV. Gas, propane, and electric tank models only. No tankless.
+				</p>
+				<div class="giveaway-hero__actions">
+					<a class="btn btn--primary btn--lg" href="#free-entry">Enter free online</a>
+					<a class="btn btn--ghost btn--lg" href="/bpwaterheaters#booking">Book a $125 flush</a>
+				</div>
+			</div>
+			<aside class="giveaway-legal-card">
+				<strong>No purchase necessary</strong>
+				<p>Purchase does not increase odds. Up to two entries per household. Void where prohibited.</p>
+				<p>Final official rules should be reviewed by a promo attorney before launch.</p>
+				<a href="/bpwaterheaters-giveaway-rules">Read official rules</a>
+			</aside>
+		</div>
+	</section>
+
+	<section class="section giveaway-entry" id="free-entry" aria-labelledby="entry-title">
+		<div class="wrap giveaway-entry__layout">
+			<div>
+				<div class="eyebrow">Free entry</div>
+				<h2 id="entry-title">Enter without buying anything.</h2>
+				<p>
+					The $125 flush earns a bonus entry after it is paid and completed, but it is not required.
+					This form can also be used for a free standard entry and one free bonus entry.
+				</p>
+				<ul class="giveaway-facts">
+					<li>Up to two entries per household: one standard entry and one bonus entry.</li>
+					<li>Entrants must be 18+ and own the home or be authorized to approve the install.</li>
+					<li>Service address must be in a BP Water Heaters service area.</li>
+				</ul>
+			</div>
+			<form class="giveaway-form" id="bpwh-giveaway-entry-form" novalidate>
+				{% if giveaway.state != "open" %}
+				<div class="giveaway-notice field--full">
+					<strong>Entry window is not open yet.</strong>
+					<span>Campaign dates must be configured before entries are accepted.</span>
+				</div>
+				{% endif %}
+				<div class="field">
+					<label for="giveaway-full-name">Full name</label>
+					<input id="giveaway-full-name" name="full_name" autocomplete="name" required>
+				</div>
+				<div class="field">
+					<label for="giveaway-phone">Phone</label>
+					<input id="giveaway-phone" name="phone" autocomplete="tel" required>
+				</div>
+				<div class="field field--full">
+					<label for="giveaway-email">Email</label>
+					<input id="giveaway-email" name="email" type="email" autocomplete="email" required>
+				</div>
+				<div class="field field--full">
+					<label for="giveaway-property-address">Service address</label>
+					<input id="giveaway-property-address" name="property_address" autocomplete="street-address" required>
+				</div>
+				<div class="field">
+					<label for="giveaway-city">City</label>
+					<input id="giveaway-city" name="city" autocomplete="address-level2" required>
+				</div>
+				<div class="field">
+					<label for="giveaway-state">State</label>
+					<select id="giveaway-state" name="state" autocomplete="address-level1" required>
+						<option value="NV">Nevada</option>
+						<option value="CA">California</option>
+					</select>
+				</div>
+				<div class="field">
+					<label for="giveaway-postal-code">ZIP</label>
+					<input id="giveaway-postal-code" name="postal_code" autocomplete="postal-code" required>
+				</div>
+				<label class="giveaway-check field--full">
+					<input name="is_adult" type="checkbox" value="1" required>
+					<span>I confirm I am at least 18 years old.</span>
+				</label>
+				<label class="giveaway-check field--full">
+					<input name="homeowner_authorized" type="checkbox" value="1" required>
+					<span>I own this home or am authorized to approve the install.</span>
+				</label>
+				<label class="giveaway-check field--full">
+					<input name="marketing_opt_in" type="checkbox" value="1">
+					<span>Send me optional BP Water Heaters promos and service reminders by email/SMS.</span>
+				</label>
+				<div class="bpwh-booking__status field--full" id="bpwh-giveaway-status" role="status" aria-live="polite"></div>
+				<button type="submit" class="btn btn--primary btn--lg btn--block field--full" data-default-text="Submit free entry">Submit free entry</button>
+				<p class="giveaway-fine-print field--full">No purchase necessary. Purchase does not increase odds. Up to two entries per household.</p>
+			</form>
+		</div>
+	</section>
+
+	<section class="section giveaway-rules" id="official-rules" aria-labelledby="rules-title">
+		<div class="wrap">
+			<div class="section-head">
+				<div class="section-head__title">
+					<div class="eyebrow">Official rules summary</div>
+					<h2 id="rules-title">Built for a clean manual drawing.</h2>
+				</div>
+				<p class="section-head__sub">
+					These rules are a working launch draft. Have the final language reviewed by a
+					sweepstakes or promo attorney before publishing paid ads.
+				</p>
+			</div>
+			<div class="giveaway-rules__grid">
+				<article>
+					<h3>Prize</h3>
+					<p>One standard 40-50 gallon tank replacement package, gas, propane, or electric, capped at $3,000 ARV. Includes standard labor, standard materials, permit, and haul-away.</p>
+				</article>
+				<article>
+					<h3>Dates</h3>
+					<p>Entry window: {{ giveaway.start_at or "Configured before launch" }} through {{ giveaway.end_at or "Configured before launch" }}.</p>
+				</article>
+				<article>
+					<h3>Exclusions</h3>
+					<p>No tankless systems. Major code upgrades, venting, gas, electrical, access, platform, relocation, or non-standard work are excluded unless BP Water Heaters chooses to waive them.</p>
+				</article>
+				<article>
+					<h3>Eligibility</h3>
+					<p>Open to adults with a qualifying BP Water Heaters service address who own the home or have authority to approve the install. Void where prohibited.</p>
+				</article>
+				<article>
+					<h3>Entries and odds</h3>
+					<p>Up to two entries per household: one standard entry and one bonus entry. The bonus entry may come from a free bonus entry request or a paid and completed $125 flush, so purchase does not increase odds. Odds depend on eligible entries received.</p>
+				</article>
+				<article>
+					<h3>Winner selection</h3>
+					<p>Eligible entries will be exported for a manual spreadsheet drawing after the 30-day entry window closes. The winner must respond and confirm eligibility.</p>
+				</article>
+				<article>
+					<h3>Taxes</h3>
+					<p>The winner is responsible for any applicable taxes and costs outside the standard package unless BP Water Heaters chooses otherwise in writing.</p>
+				</article>
+			</div>
+		</div>
+	</section>
+</main>
+<script src="/assets/bp_water_heaters/js/bpwh_booking.js"></script>
+{% endblock %}

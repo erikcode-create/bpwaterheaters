@@ -3,12 +3,13 @@
 	const contactForm = document.getElementById("bpwh-contact-form");
 	const portalForm = document.getElementById("bpwh-portal-form");
 	const chatForm = document.getElementById("bpwh-chat-form");
-	const slotSelect = bookingForm && bookingForm.querySelector("select[name='preferred_start']");
-	const slotButtons = document.getElementById("bpwh-slot-buttons");
+	const giveawayForm = document.getElementById("bpwh-giveaway-entry-form");
+	const preferredStartInput = bookingForm && bookingForm.querySelector("input[name='preferred_start']");
 	const bookingStatus = document.getElementById("bpwh-booking-status");
 	const contactStatus = document.getElementById("bpwh-contact-status");
 	const portalStatus = document.getElementById("bpwh-portal-status");
 	const chatStatus = document.getElementById("bpwh-chat-status");
+	const giveawayStatus = document.getElementById("bpwh-giveaway-status");
 
 	function showStatus(element, message) {
 		if (!element) return;
@@ -32,49 +33,18 @@
 		return data.message;
 	}
 
-	function renderSlotButtons(slots) {
-		if (!slotButtons || !slotSelect) return;
-		slotButtons.innerHTML = "";
-		for (const slot of slots) {
-			const button = document.createElement("button");
-			button.type = "button";
-			button.className = "slot";
-			button.dataset.value = slot.start;
-			button.append(document.createTextNode(slot.label));
-			const meta = document.createElement("small");
-			meta.textContent = "available";
-			button.append(meta);
-			button.addEventListener("click", () => {
-				slotSelect.value = slot.start;
-				slotButtons.querySelectorAll(".slot").forEach((item) => item.setAttribute("aria-pressed", "false"));
-				button.setAttribute("aria-pressed", "true");
-			});
-			button.setAttribute("aria-pressed", "false");
-			slotButtons.append(button);
-		}
+	function localDateTimeValue(date) {
+		const pad = (value) => String(value).padStart(2, "0");
+		return [
+			date.getFullYear(),
+			pad(date.getMonth() + 1),
+			pad(date.getDate()),
+		].join("-") + `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 	}
 
-	async function loadSlots() {
-		if (!slotSelect) return;
-		try {
-			const data = await call("bp_water_heaters.api.booking.get_available_slots");
-			const slots = Array.isArray(data.slots) ? data.slots : [];
-			slotSelect.innerHTML = "";
-			if (slotButtons) slotButtons.innerHTML = "";
-			if (!slots.length) {
-				slotSelect.innerHTML = "<option value=''>No online slots are open right now</option>";
-				return;
-			}
-			slotSelect.append(new Option("Choose an appointment time", ""));
-			for (const slot of slots) {
-				slotSelect.append(new Option(slot.label, slot.start));
-			}
-			renderSlotButtons(slots);
-		} catch (error) {
-			slotSelect.innerHTML = "<option value=''>Unable to load slots</option>";
-			if (slotButtons) slotButtons.innerHTML = "";
-			showStatus(bookingStatus, "We could not load online appointment times. Please call 775-815-9875.");
-		}
+	function setPreferredStartMinimum() {
+		if (!preferredStartInput) return;
+		preferredStartInput.min = localDateTimeValue(new Date());
 	}
 
 	async function submitBooking(event) {
@@ -84,18 +54,15 @@
 		const button = bookingForm.querySelector("button[type='submit']");
 		const defaultText = button.dataset.defaultText || button.textContent;
 		button.disabled = true;
-		button.textContent = "Holding slot...";
+		button.textContent = "Sending request...";
 		try {
-			const result = await call("bp_water_heaters.api.booking.create_booking_hold", payload);
-			if (result.checkout && result.checkout.url) {
-				window.location.href = result.checkout.url;
-				return;
-			}
+			const result = await call("bp_water_heaters.api.booking.create_booking_request", payload);
 			showStatus(
 				bookingStatus,
-				`Your slot is held as ${result.booking}. Stripe checkout is being connected; call 775-815-9875 to finish payment.`
+				`Request received as ${result.booking}. BP Water Heaters will text to confirm the final arrival window. The $85 diagnostic fee is collected on-site or after diagnosis.`
 			);
-			await loadSlots();
+			bookingForm.reset();
+			setPreferredStartMinimum();
 		} catch (error) {
 			showStatus(bookingStatus, "That booking could not be created. Please check the form or call 775-815-9875.");
 		} finally {
@@ -161,9 +128,32 @@
 		}
 	}
 
+	async function submitGiveawayEntry(event) {
+		event.preventDefault();
+		const payload = Object.fromEntries(new FormData(giveawayForm).entries());
+		payload.is_adult = giveawayForm.elements.is_adult.checked ? "1" : "";
+		payload.homeowner_authorized = giveawayForm.elements.homeowner_authorized.checked ? "1" : "";
+		payload.marketing_opt_in = giveawayForm.elements.marketing_opt_in.checked ? "1" : "";
+		const button = giveawayForm.querySelector("button[type='submit']");
+		const defaultText = button.dataset.defaultText || button.textContent;
+		button.disabled = true;
+		button.textContent = "Submitting...";
+		try {
+			const result = await call("bp_water_heaters.api.giveaway.submit_free_entry", payload);
+			const entryKind = result.entry_kind ? `${result.entry_kind.toLowerCase()} ` : "";
+			showStatus(giveawayStatus, `Your ${entryKind}entry was received as ${result.name}. No purchase was required and purchase does not increase odds.`);
+			giveawayForm.reset();
+		} catch (error) {
+			showStatus(giveawayStatus, "That entry could not be submitted. Please check the form or call 775-815-9875.");
+		} finally {
+			button.disabled = false;
+			button.textContent = defaultText;
+		}
+	}
+
 	if (bookingForm) {
 		bookingForm.addEventListener("submit", submitBooking);
-		loadSlots();
+		setPreferredStartMinimum();
 	}
 	if (contactForm) {
 		contactForm.addEventListener("submit", submitContact);
@@ -173,5 +163,8 @@
 	}
 	if (chatForm) {
 		chatForm.addEventListener("submit", submitChat);
+	}
+	if (giveawayForm) {
+		giveawayForm.addEventListener("submit", submitGiveawayEntry);
 	}
 })();

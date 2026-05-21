@@ -1,6 +1,39 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+import sys
+from datetime import date, datetime, timezone
+from types import ModuleType, SimpleNamespace
+
+
+def _install_fake_frappe():
+	if "frappe" in sys.modules:
+		return
+	frappe = ModuleType("frappe")
+	utils = ModuleType("frappe.utils")
+
+	frappe._ = lambda message, *args, **kwargs: message
+	frappe.conf = {}
+	frappe.flags = SimpleNamespace()
+	frappe.local = SimpleNamespace(request=SimpleNamespace(host="bpwaterheaters.com"), response={})
+	frappe.request = SimpleNamespace(method="POST")
+	frappe.session = SimpleNamespace(user="test@example.com")
+	frappe.PermissionError = PermissionError
+	frappe.get_doc = lambda *args, **kwargs: None
+	frappe.throw = lambda message, exc=None: (_ for _ in ()).throw((exc or Exception)(message))
+	frappe.whitelist = lambda *args, **kwargs: (args[0] if args and callable(args[0]) else lambda fn: fn)
+
+	utils.get_datetime = lambda value=None: value if isinstance(value, datetime) else datetime.fromisoformat(str(value))
+	utils.get_url = lambda: "http://test.local"
+	utils.getdate = lambda value=None: date.today() if not value else date.fromisoformat(str(value))
+	utils.now_datetime = datetime.now
+	utils.nowdate = lambda: date.today().isoformat()
+	frappe.utils = utils
+
+	sys.modules["frappe"] = frappe
+	sys.modules["frappe.utils"] = utils
+
+
+_install_fake_frappe()
 
 from bp_water_heaters.mobile_auth import hash_mobile_token, issue_mobile_token, is_allowed_admin
 from bp_water_heaters.api import booking
@@ -106,6 +139,54 @@ def test_stripe_idempotency_key_includes_booking_creation_time():
 		booking._stripe_idempotency_key("customer", booking_doc)
 		== "bpwh-customer-BPWH-BKG-2026-00003-20260502214512123456"
 	)
+
+
+def test_booking_request_does_not_open_checkout_or_payment_hold(monkeypatch):
+	created = {}
+
+	class FakeBooking(SimpleNamespace):
+		name = "BPWH-BKG-2026-00004"
+
+		def insert(self, ignore_permissions=False):
+			created["doc"] = self
+
+		def get(self, key, default=None):
+			return getattr(self, key, default)
+
+	def fake_get_doc(payload):
+		return FakeBooking(**payload)
+
+	def fail_checkout(_booking_doc):
+		raise AssertionError("Booking requests should not start Stripe checkout")
+
+	monkeypatch.setattr(booking, "require_bpwh_rate_limit", lambda *args, **kwargs: None)
+	monkeypatch.setattr(booking, "client_ip", lambda _frappe: "127.0.0.1")
+	monkeypatch.setattr(booking.frappe, "get_doc", fake_get_doc)
+	monkeypatch.setattr(booking, "_apply_tax_rule_to_booking", lambda _booking_doc: None)
+	monkeypatch.setattr(booking, "_create_checkout_session_if_configured", fail_checkout)
+	monkeypatch.setattr(booking, "now_datetime", lambda: datetime(2026, 5, 20, 9, 0))
+
+	result = booking.create_booking_request(
+		customer_name="Ada Plumber",
+		email="ADA@example.com",
+		phone="775-555-0199",
+		property_address="42 Tank Way",
+		city="Reno",
+		state="NV",
+		postal_code="89501",
+		preferred_start="2026-05-21 14:15",
+		service_type="Estimate",
+	)
+
+	doc = created["doc"]
+	assert result["booking"] == "BPWH-BKG-2026-00004"
+	assert result["status"] == "Requested"
+	assert result["checkout"] is None
+	assert doc.status == "Requested"
+	assert doc.hold_expires_at is None
+	assert doc.stripe_payment_status == "Not Started"
+	assert doc.payment_settlement_status == "Not Started"
+	assert doc.email == "ada@example.com"
 
 
 def test_plaid_transactions_map_to_bank_transaction_fields():

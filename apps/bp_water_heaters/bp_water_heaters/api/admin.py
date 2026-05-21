@@ -29,8 +29,9 @@ def require_post():
 def dashboard():
 	require_bpwh_admin()
 	return {
-		"open_bookings": frappe.db.count("BPWH Booking", {"status": ["in", ["Pending Payment", "Payment Pending Settlement", "Confirmed"]]}),
+		"open_bookings": frappe.db.count("BPWH Booking", {"status": ["in", ["Requested", "Pending Payment", "Payment Pending Settlement", "Confirmed"]]}),
 		"new_contacts": frappe.db.count("BPWH Contact Request", {"status": "New"}),
+		"giveaway_entries": frappe.db.count("BPWH Giveaway Entry", {"status": "Eligible"}),
 		"open_chats": frappe.db.count("BPWH Chat Conversation", {"status": ["!=", "Closed"]}),
 		"open_projects": frappe.db.count("Project", {"status": "Open"}),
 	}
@@ -46,6 +47,11 @@ def list_bookings(limit: int = 50):
 			"customer_name",
 			"email",
 			"phone",
+			"service_type",
+			"property_address",
+			"city",
+			"state",
+			"postal_code",
 			"preferred_start",
 			"status",
 			"stripe_payment_status",
@@ -226,7 +232,7 @@ def ensure_job_for_booking(booking: str):
 def update_booking_status(booking: str, status: str):
 	require_bpwh_admin()
 	require_post()
-	allowed = {"Pending Payment", "Payment Pending Settlement", "Confirmed", "Payment Failed", "Cancelled", "Completed", "Expired", "Refunded", "Disputed"}
+	allowed = {"Requested", "Pending Payment", "Payment Pending Settlement", "Confirmed", "Payment Failed", "Cancelled", "Completed", "Expired", "Refunded", "Disputed"}
 	if status not in allowed:
 		frappe.throw(_("Unsupported booking status."))
 	frappe.db.set_value("BPWH Booking", booking, "status", status, update_modified=True)

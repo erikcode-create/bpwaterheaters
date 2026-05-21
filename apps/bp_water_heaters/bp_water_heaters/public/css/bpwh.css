@@ -887,6 +887,7 @@ footer {
 	gap: 8px;
 }
 
+.bpwh-admin-panel__header button,
 .bpwh-admin-actions button,
 .bpwh-admin-actions select,
 .bpwh-admin-row button,
@@ -899,6 +900,7 @@ footer {
 	padding: 0 12px;
 }
 
+.bpwh-admin-panel__header button,
 .bpwh-admin-actions button,
 .bpwh-admin-row button {
 	background: var(--bpwh-ink);

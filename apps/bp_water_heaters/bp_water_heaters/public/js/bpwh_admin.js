@@ -43,6 +43,7 @@
 		metrics.innerHTML = [
 			["Open bookings", summary.open_bookings],
 			["New contacts", summary.new_contacts],
+			["Giveaway entries", summary.giveaway_entries],
 			["Open chats", summary.open_chats],
 			["Open jobs", summary.open_projects],
 		]
@@ -63,6 +64,7 @@
 
 	function renderBookings(bookings) {
 		const options = [
+			"Requested",
 			"Pending Payment",
 			"Payment Pending Settlement",
 			"Confirmed",
@@ -77,15 +79,48 @@
 			<article class="bpwh-admin-row" data-booking="${escapeHtml(booking.name)}">
 				<div>
 					<strong>${escapeHtml(booking.customer_name)}</strong>
-					<span>${escapeHtml(booking.preferred_start || "")} · ${escapeHtml(booking.email)}</span>
+					<span>${escapeHtml(booking.service_type || "")} · ${escapeHtml(booking.preferred_start || "")} · ${escapeHtml(booking.email)}</span>
 					<span>${escapeHtml(booking.stripe_payment_status || "No payment")} · ${escapeHtml(booking.payment_settlement_status || "")}</span>
 				</div>
 				<div class="bpwh-admin-actions">
 					<select data-action="booking-status">${statusOptions(booking.status, options)}</select>
 					<button type="button" data-action="ensure-job">Create/update job</button>
+					${
+						booking.service_type === "Flush" && booking.status === "Completed"
+							? "<button type='button' data-action='create-flush-entry'>Create flush entry</button>"
+							: ""
+					}
+				</div>
+				<script type="application/json" data-booking-payload>${JSON.stringify(booking).replace(/</g, "\\u003c")}</script>
+			</article>
+		`);
+	}
+
+	function renderGiveawayEntries(entries) {
+		renderRows("bpwh-admin-giveaway-entries", entries, (entry) => `
+			<article class="bpwh-admin-row" data-giveaway-entry="${escapeHtml(entry.name)}">
+				<div>
+					<strong>${escapeHtml(entry.full_name)}</strong>
+					<span>${escapeHtml(entry.entry_kind || "")} · ${escapeHtml(entry.entry_source)} · ${escapeHtml(entry.status)} · ${escapeHtml(entry.email)}</span>
+					<span>${escapeHtml(entry.property_address)}, ${escapeHtml(entry.city)} ${escapeHtml(entry.state)} ${escapeHtml(entry.postal_code)}</span>
+				</div>
+				<div class="bpwh-admin-actions">
+					${entry.status === "Winner" ? "<span>Winner</span>" : "<button type='button' data-action='mark-giveaway-winner'>Mark winner</button>"}
 				</div>
 			</article>
 		`);
+	}
+
+	function downloadText(filename, text, type) {
+		const blob = new Blob([text], { type: type || "text/plain" });
+		const url = URL.createObjectURL(blob);
+		const anchor = document.createElement("a");
+		anchor.href = url;
+		anchor.download = filename;
+		document.body.append(anchor);
+		anchor.click();
+		anchor.remove();
+		URL.revokeObjectURL(url);
 	}
 
 	function renderProjects(projects) {
@@ -254,9 +289,10 @@
 
 	async function load() {
 		status.textContent = "Loading live BP Water Heaters operations.";
-		const [summary, bookings, projects, invoices, chats, plaid] = await Promise.all([
+		const [summary, bookings, giveawayEntries, projects, invoices, chats, plaid] = await Promise.all([
 			call("bp_water_heaters.api.admin.dashboard"),
 			call("bp_water_heaters.api.admin.list_bookings"),
+			call("bp_water_heaters.api.giveaway.admin_list_entries"),
 			call("bp_water_heaters.api.admin.list_projects"),
 			call("bp_water_heaters.api.admin.list_invoices"),
 			call("bp_water_heaters.api.admin.list_chats"),
@@ -264,6 +300,7 @@
 		]);
 		renderMetrics(summary);
 		renderBookings(bookings);
+		renderGiveawayEntries(giveawayEntries);
 		renderProjects(projects);
 		renderInvoices(invoices);
 		renderChats(chats);
@@ -294,8 +331,26 @@
 		const project = target.closest("[data-project]")?.dataset.project;
 		const conversation = target.closest("[data-conversation]")?.dataset.conversation;
 		const plaidItem = target.closest("[data-plaid-item]")?.dataset.plaidItem;
+		const giveawayEntry = target.closest("[data-giveaway-entry]")?.dataset.giveawayEntry;
 		if (target.dataset.action === "ensure-job" && booking) {
 			await call("bp_water_heaters.api.admin.ensure_job_for_booking", { booking });
+			await load();
+		}
+		if (target.dataset.action === "create-flush-entry" && booking) {
+			const row = target.closest("[data-booking]");
+			const bookingPayload = JSON.parse(row.querySelector("[data-booking-payload]").textContent);
+			await call("bp_water_heaters.api.giveaway.create_paid_flush_entry", {
+				full_name: bookingPayload.customer_name,
+				email: bookingPayload.email,
+				phone: bookingPayload.phone,
+				property_address: bookingPayload.property_address,
+				city: bookingPayload.city,
+				state: bookingPayload.state,
+				postal_code: bookingPayload.postal_code,
+				linked_booking: bookingPayload.name,
+				linked_sales_invoice: bookingPayload.sales_invoice,
+				flush_paid_completed: "1",
+			});
 			await load();
 		}
 		if (target.dataset.action === "open-chat" && conversation) {
@@ -323,6 +378,15 @@
 		}
 		if (target.dataset.action === "project-complete" && project) {
 			await call("bp_water_heaters.api.admin.update_project", { project, status: "Completed", percent_complete: 100 });
+			await load();
+		}
+		if (target.dataset.action === "export-giveaway") {
+			const result = await call("bp_water_heaters.api.giveaway.admin_export_eligible_entries");
+			downloadText(result.filename, result.csv, "text/csv");
+			status.textContent = `Exported ${result.count} eligible giveaway entries.`;
+		}
+		if (target.dataset.action === "mark-giveaway-winner" && giveawayEntry) {
+			await call("bp_water_heaters.api.giveaway.admin_mark_winner", { entry: giveawayEntry });
 			await load();
 		}
 	});
